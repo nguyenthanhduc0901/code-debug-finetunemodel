@@ -1,8 +1,15 @@
 import json
+import argparse
 
-refs_path = 'refs_zero_shot.txt'
-pres_path = 'pres_zero_shot.txt'
-path = 'debugevalsuite_task124.jsonl'
+parser = argparse.ArgumentParser(description='Calculate BUG Identification accuracy')
+parser.add_argument('--refs', default='output/eval_results/error_type_identification/refs_zero_shot.txt', help='Path to references file')
+parser.add_argument('--preds', default='output/eval_results/error_type_identification/pres_zero_shot.txt', help='Path to predictions file')
+parser.add_argument('--data_path', default='Data/eval/debugevalsuite_task124.jsonl', help='Path to eval JSONL data')
+args = parser.parse_args()
+
+refs_path = args.refs
+pres_path = args.preds
+path = args.data_path
 
 refs = [i.strip() for i in open(refs_path,'r',encoding='utf8').readlines()]
 pres = [i.strip() for i in open(pres_path,'r',encoding='utf8').readlines()]

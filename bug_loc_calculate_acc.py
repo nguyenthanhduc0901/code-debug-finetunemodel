@@ -1,11 +1,18 @@
 import json
+import argparse
 
-refs = "refs_zero_shot.txt"
-pres = "pres_zero_shot.txt"
-path = "debugevalsuite_task124.jsonl"
+parser = argparse.ArgumentParser(description='Calculate BUG Localization accuracy')
+parser.add_argument('--refs', default='output/eval_results/error_code_localization/refs_zero_shot.txt', help='Path to references file')
+parser.add_argument('--preds', default='output/eval_results/error_code_localization/pres_zero_shot.txt', help='Path to predictions file')
+parser.add_argument('--data_path', default='Data/eval/debugevalsuite_task124.jsonl', help='Path to eval JSONL data')
+args = parser.parse_args()
 
-refs = [i.strip() for i in open(refs,'r',encoding='utf8').readlines()]
-pres = [i.strip() for i in open(pres,'r',encoding='utf8').readlines()]
+refs = args.refs
+pres = args.preds
+path = args.data_path
+
+refs = [i.strip() for i in open(refs, 'r', encoding='utf8').readlines()]
+pres = [i.strip() for i in open(pres, 'r', encoding='utf8').readlines()]
 
 def read_data_file(path):
     data = []

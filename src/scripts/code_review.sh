@@ -1,11 +1,15 @@
 #export CUDA_VISIBLE_DEVICES=1,3
-#model ['deepseek_FT_cot','deepseek_FT_no_cot','llama3_FT_cot','llama3_FT_no_cot',other model name]
+# MODEL options: 'deepseek_FT_cot' (our fine-tuned), 'deepseek_FT_no_cot',
+#                'llama3_FT_cot', 'llama3_FT_no_cot', 'vllm-agent' (base via vLLM)
+MODEL=${MODEL:-"deepseek_FT_cot"}
+OUTPUT_DIR="output/eval_results/code_review"
+mkdir -p "$OUTPUT_DIR"
 
-python src/inference/main.py \
-    --model "deepseek-6.7b" \
+python3 src/inference/main.py \
+    --model "$MODEL" \
     --data_path "Data/eval/debugevalsuite_task124.jsonl" \
     --prompt_dir "src/prompts" \
-    --output_dir "" \
+    --output_dir "$OUTPUT_DIR" \
     --task "code_review" \
     --prompt_type "zero_shot" \
     --platform "all" \

@@ -99,7 +99,13 @@ def main(file_path,output_path,private_test_cases_path):
 
     print("Done!")
 if __name__ == '__main__':
-    path = './code_repair/zero_shot/python_zero_shot.jsonl'
-    out = './code_repair/zero_shot/python_result.jsonl'
-    private_test_cases_path = './atcoder_private_test_cases.jsonl'
-    main(path,out,private_test_cases_path)
+    import argparse
+    parser = argparse.ArgumentParser(description='Run Python code repair OJ evaluation')
+    parser.add_argument('--input', default='output/eval_results/code_repair/pres_zero_shot.txt',
+                        help='Path to inference predictions JSONL')
+    parser.add_argument('--output', default='output/eval_results/code_repair/python_result.jsonl',
+                        help='Path to write OJ judge results')
+    parser.add_argument('--test_cases', default='OJ_Evaluation/atcoder_code_error_judge/atcoder_private_test_cases.jsonl',
+                        help='Path to private test cases JSONL')
+    args = parser.parse_args()
+    main(args.input, args.output, args.test_cases)

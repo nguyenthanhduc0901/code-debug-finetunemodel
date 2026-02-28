@@ -1,10 +1,18 @@
-refs_path = 'code_review/zero_shot/refs_zero_shot.txt'
-pres_path = 'code_review/zero_shot/pres_zero_shot.txt'
+import argparse
 
-reverse_refs_path = 'code_review_reverse/zero_shot/refs_zero_shot.txt'
-reverse_pres_path = 'code_review_reverse/zero_shot/pres_zero_shot.txt'
+parser = argparse.ArgumentParser(description='Calculate Code Review accuracy')
+parser.add_argument('--refs', default='output/eval_results/code_review/refs_zero_shot.txt', help='Code review references file')
+parser.add_argument('--preds', default='output/eval_results/code_review/pres_zero_shot.txt', help='Code review predictions file')
+parser.add_argument('--reverse_refs', default='output/eval_results/code_review_reverse/refs_zero_shot.txt', help='Code review reverse references file')
+parser.add_argument('--reverse_preds', default='output/eval_results/code_review_reverse/pres_zero_shot.txt', help='Code review reverse predictions file')
+parser.add_argument('--data_path', default='Data/eval/debugevalsuite_task124.jsonl', help='Path to eval JSONL data')
+args = parser.parse_args()
 
-path = 'debugevalsuite_task124.jsonl'
+refs_path = args.refs
+pres_path = args.preds
+reverse_refs_path = args.reverse_refs
+reverse_pres_path = args.reverse_preds
+path = args.data_path
 
 refs = ['Code-'+i.strip() for i in open(refs_path,'r',encoding='utf8').readlines()]
 pres = [i.strip() for i in open(pres_path,'r',encoding='utf8').readlines()]

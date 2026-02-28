@@ -1,17 +1,21 @@
 import json
+import argparse
 import numpy as np
-result_path = '/python_result.jsonl'
-data_path = 'debugevalsuite_task3_python.jsonl'
 
-if 'python' in data_path:
+parser = argparse.ArgumentParser(description='Calculate Code Repair pass@k accuracy')
+parser.add_argument('--result_path', default='output/eval_results/code_repair/python_result.jsonl', help='Path to OJ judge result JSONL')
+parser.add_argument('--data_path', default='Data/eval/debugevalsuite_task3.jsonl', help='Path to eval JSONL data (supports python/java/cpp via --lang)')
+parser.add_argument('--lang', default='python', choices=['python', 'java', 'cpp'], help='Language to evaluate')
+args_parsed = parser.parse_args()
+
+result_path = args_parsed.result_path
+data_path = args_parsed.data_path
+lang = args_parsed.lang
+
+if lang == 'python':
     panduan = 'responses_success'
-    lang = 'python'
-elif 'java' in data_path:
+elif lang in ('java', 'cpp'):
     panduan = 'result'
-    lang = 'java'
-elif 'cpp' in data_path:
-    panduan = 'result'
-    lang = 'cpp'
 
 question_error = {}
 
@@ -87,7 +91,7 @@ for i,line in enumerate(results):
 
 
 print(f'average:{calculate_pass_at_k(acc)}')
-print(f'syntax:{calculate_pass_at_k(dict["syntax error"]))}')
+print(f'syntax:{calculate_pass_at_k(dict["syntax error"])}')
 print(f'reference:{calculate_pass_at_k(dict["reference error"])}')
 print(f'logic:{calculate_pass_at_k(dict["logic error"])}')
 print(f'multiple:{calculate_pass_at_k(dict["multiple error"])}')
