@@ -1,0 +1,54 @@
+# ── Model weights (too large for git, download from HuggingFace) ──────────────
+models/
+
+# ── Fine-tuned checkpoints & training output ──────────────────────────────────
+output/
+
+# ── Dataset files (available at huggingface.co/datasets/yangweiqing/DebugEval) ─
+Data/train/
+Data/eval/
+Data/.cache/
+Data/atcoder_private_test_cases.jsonl
+Data/test_cases.zip
+
+# ── TensorBoard logs ───────────────────────────────────────────────────────────
+runs/
+**/runs/
+
+# ── Temporary test/eval output ─────────────────────────────────────────────────
+*.txt
+!src/README.md
+!neural_compiler/src/README.md
+!OJ_Evaluation/**/*.txt
+!src/prompts/**/*.txt
+
+# ── Python cache ───────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# ── Jupyter / IPython ──────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Virtual environments ───────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env
+
+# ── OS & editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp
+*.swo
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+nohup.out
+
+# ── HuggingFace cache ──────────────────────────────────────────────────────────
+.cache/
