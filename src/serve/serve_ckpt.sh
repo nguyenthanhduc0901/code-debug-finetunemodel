@@ -1,5 +1,5 @@
 #!/bin/bash
-export CUDA_VISIBLE_DEVICES=3,6
+export CUDA_VISIBLE_DEVICES=0
 # source ./source.sh
 # check_conda_env_and_activate llm-agent
 

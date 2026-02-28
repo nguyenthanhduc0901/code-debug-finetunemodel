@@ -4,7 +4,7 @@
 python src/inference/main.py \
     --model "deepseek-6.7b" \
     --data_path "Data/eval/debugevalsuite_task3.jsonl" \
-    --prompt_dir "DebugEval/src/prompts" \
+    --prompt_dir "src/prompts" \
     --output_dir "" \
     --task "code_repair" \
     --prompt_type "zero_shot" \
