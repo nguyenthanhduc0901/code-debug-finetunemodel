@@ -18,12 +18,33 @@ This paper presents a benchmark, DebugEval, which is used to evaluate the code d
 
 ![image](https://github.com/NEUIR/COAST/blob/main/Figure/COAST_00.png).
 ## 2. Installation
-You can clone the repository using the following command:
 
+```bash
+git clone https://github.com/nguyenthanhduc0901/code-debug-finetunemodel
+cd code-debug-finetunemodel
 ```
-git clone https://github.com/NEUIR/COAST
-cd COAST
+
+### Step 1 — Install dependencies
+```bash
+bash setup_env.sh
 ```
+> Automatically detects your CUDA version and installs the correct PyTorch build,
+> then installs all remaining packages (transformers, deepspeed, peft, etc.)
+
+### Step 2 — Download model & dataset
+```bash
+# Download both model weights (~13.5 GB) and DebugEval dataset
+bash download_assets.sh
+
+# Or separately:
+bash download_assets.sh --model-only   # only DeepSeek-Coder-6.7B-Instruct
+bash download_assets.sh --data-only    # only DebugEval dataset
+```
+
+| Asset | Source | Local path |
+|-------|--------|-----------|
+| DeepSeek-Coder-6.7B-Instruct | [HuggingFace](https://huggingface.co/deepseek-ai/deepseek-coder-6.7b-instruct) | `models/deepseek-coder-6.7b-instruct/` |
+| DebugEval dataset | [HuggingFace](https://huggingface.co/datasets/yangweiqing/DebugEval) | `Data/` |
 
 ## 3. Inference and Evaluation
 Download the dataset we provide.

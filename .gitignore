@@ -17,6 +17,7 @@ runs/
 
 # ── Temporary test/eval output ─────────────────────────────────────────────────
 *.txt
+!requirements.txt
 !src/README.md
 !neural_compiler/src/README.md
 !OJ_Evaluation/**/*.txt
