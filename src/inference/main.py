@@ -494,22 +494,5 @@ def main():
         print("Overall Accuracy: ", acc, "%")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 if __name__ == '__main__':
     main()

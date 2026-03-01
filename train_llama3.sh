@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================
-# Fine-tune DeepSeek-Coder-6.7B-Instruct on DebugEval COAST data
+# Fine-tune Meta-Llama-3-8B-Instruct on DebugEval COAST data
 # Single GPU: NVIDIA H100 80GB
 # =============================================================
 
@@ -10,16 +10,16 @@ export PATH="$HOME/.local/bin:$PATH"
 PROJECT_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
 DATA_PATH="$PROJECT_ROOT/Data/train/data.json"
-OUTPUT_PATH="$PROJECT_ROOT/output/deepseek-coder-6.7b-finetuned"
-MODEL_PATH="$PROJECT_ROOT/models/deepseek-coder-6.7b-instruct"
-DS_CONFIG="$PROJECT_ROOT/neural_compiler/src/finetune/ds_config_deepseek_coder.json"
-FINETUNE_SCRIPT="$PROJECT_ROOT/neural_compiler/src/finetune/fine-tune-deepseek-coder.py"
+OUTPUT_PATH="$PROJECT_ROOT/output/llama3-8b-finetuned"
+MODEL_PATH="$PROJECT_ROOT/models/llama3-8b-instruct"
+DS_CONFIG="$PROJECT_ROOT/neural_compiler/src/finetune/ds_config_llama3.json"
+FINETUNE_SCRIPT="$PROJECT_ROOT/neural_compiler/src/finetune/fine-tune-llama3.py"
 
 mkdir -p "$OUTPUT_PATH"
 mkdir -p "$PROJECT_ROOT/logs"
 
 echo "=================================================="
-echo "  Training: DeepSeek-Coder-6.7B-Instruct (LoRA)"
+echo "  Training: Meta-Llama-3-8B-Instruct (LoRA)"
 echo "  Data   : $DATA_PATH"
 echo "  Output : $OUTPUT_PATH"
 echo "  GPU    : CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}"

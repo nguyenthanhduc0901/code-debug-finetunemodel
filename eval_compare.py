@@ -8,8 +8,10 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
 
-BASE_MODEL  = "/home/ubuntu/COAST/models/deepseek-coder-6.7b-instruct"
-ADAPTER_DIR = "/home/ubuntu/COAST/output/deepseek-coder-6.7b-finetuned"
+import os as _os
+_PROJECT_ROOT = _os.path.dirname(_os.path.abspath(__file__))
+BASE_MODEL  = _os.path.join(_PROJECT_ROOT, "models", "deepseek-coder-6.7b-instruct")
+ADAPTER_DIR = _os.path.join(_PROJECT_ROOT, "output", "deepseek-coder-6.7b-finetuned")
 
 # ── TEST CASES ────────────────────────────────────────────────────────────────
 tests = [
