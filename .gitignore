@@ -1,0 +1,32 @@
+# ==========================================
+# 1. Bỏ qua các tệp tin Models và Checkpoints
+# ==========================================
+# Bỏ qua toàn bộ thư mục models ngoại trừ file cấu hình nếu có
+models/
+!models/.gitkeep
+
+# ==========================================
+# 2. Bỏ qua dữ liệu Datasets lớn
+# ==========================================
+# Chỉ bỏ qua dữ liệu của debugeval
+data/debugeval/
+!data/debugeval/.gitkeep
+
+# Không bỏ qua socratic (sẽ được push lên Git)
+!data/socratic/
+
+# ==========================================
+# 3. Bỏ qua Logs và Scratch Files
+# ==========================================
+logs/
+scratch/
+
+# ==========================================
+# 4. Bỏ qua các file rác hệ thống và Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+.DS_Store
+.env
