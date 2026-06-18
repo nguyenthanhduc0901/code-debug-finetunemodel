@@ -65,7 +65,38 @@ Dự án fine-tune và đánh giá các mô hình ngôn ngữ lớn trên hai t�
 
 ---
 
+## Chuẩn bị (Setup)
+
+Vì các tệp tin mô hình nặng, checkpoints, và dataset lớn không được push lên Git (theo cấu hình `.gitignore`), bạn cần chạy các script tiện ích sau để chuẩn bị môi trường trước khi chạy dự án:
+
+### 1. Thiết lập Token Hugging Face
+Vì các mô hình fine-tuned được lưu ở chế độ Private trên Hugging Face của bạn, hãy xuất token trước khi tải:
+```bash
+export HF_TOKEN="your_huggingface_write_token"
+```
+
+### 2. Tải mô hình Base
+Tải cả 3 mô hình base (`Qwen2.5-Coder-3B-Instruct`, `Qwen2.5-3B-Instruct`, `gemma-4-E4B-it`):
+```bash
+bash scripts/utils/download_base_models.sh
+```
+
+### 3. Tải các bản Fine-tuned LoRA Adapters
+Tải các trọng số LoRA đã huấn luyện từ Hugging Face về các thư mục tương ứng:
+```bash
+bash scripts/utils/download_lora_adapters.sh
+```
+
+### 4. Chuẩn bị Dữ liệu DebugEval
+Giải nén hoặc tải tập dữ liệu DebugEval (ở local sẽ tự động giải nén từ tệp sao lưu `.tar.gz` nếu có):
+```bash
+bash scripts/utils/download_debugeval_data.sh
+```
+
+---
+
 ## Sử dụng
+
 
 ### Huấn luyện
 ```bash
