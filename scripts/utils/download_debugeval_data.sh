@@ -4,9 +4,14 @@
 
 set -e
 
+# Resolve paths dynamically relative to script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+TARGET_DIR="${PROJECT_ROOT}/data/debugeval"
+BACKUP_TAR="${PROJECT_ROOT}/../finetune_gemma.tar.gz"
+
 # Default download URL placeholder (replace with your hosted dataset URL)
 DATA_URL="${1:-https://your-storage-bucket.com/debugeval_data.tar.gz}"
-TARGET_DIR="/workspace/finetune_gemma/data/debugeval"
 
 echo "=============================================="
 echo "Preparing DebugEval Dataset"
@@ -17,10 +22,10 @@ mkdir -p "${TARGET_DIR}"
 
 # Note: Since the dataset is large (atcoder cases & raw JSONL files),
 # users setting this up locally can download the hosted tarball or copy it.
-if [ -f "/workspace/finetune_gemma.tar.gz" ]; then
-    echo "Found local backup at /workspace/finetune_gemma.tar.gz."
+if [ -f "${BACKUP_TAR}" ]; then
+    echo "Found local backup at ${BACKUP_TAR}."
     echo "Extracting only the data/debugeval directory..."
-    tar -xf /workspace/finetune_gemma.tar.gz -C /workspace/ --wildcards "finetune_gemma/data/debugeval/*"
+    tar -xf "${BACKUP_TAR}" -C "${PROJECT_ROOT}/.." --wildcards "finetune_gemma/data/debugeval/*"
     echo "✅ Extraction complete from backup!"
 else
     echo "Downloading from: ${DATA_URL}"

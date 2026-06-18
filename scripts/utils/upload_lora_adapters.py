@@ -5,24 +5,28 @@ from huggingface_hub import HfApi, create_repo
 
 USERNAME = "ntduc0901"
 
+# Resolve paths dynamically relative to project root
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
+
 MODELS_TO_UPLOAD = [
     {
-        "local_dir": "/workspace/finetune_gemma/models/finetuned/debugeval/gemma4-sft",
+        "local_dir": os.path.join(PROJECT_ROOT, "models/finetuned/debugeval/gemma4-sft"),
         "repo_name": "gemma4-debugeval-lora",
         "base_model_id": "google/gemma-4-E4B-it",
-        "local_base_path": "/workspace/finetune_gemma/models/google/gemma-4-E4B-it"
+        "local_base_path": os.path.join(PROJECT_ROOT, "models/google/gemma-4-E4B-it")
     },
     {
-        "local_dir": "/workspace/finetune_gemma/models/finetuned/debugeval/qwen-coder-3b-sft",
+        "local_dir": os.path.join(PROJECT_ROOT, "models/finetuned/debugeval/qwen-coder-3b-sft"),
         "repo_name": "qwen-debugeval-lora",
         "base_model_id": "Qwen/Qwen2.5-Coder-3B-Instruct",
-        "local_base_path": "/workspace/finetune_gemma/models/base/Qwen2.5-Coder-3B-Instruct"
+        "local_base_path": os.path.join(PROJECT_ROOT, "models/base/Qwen2.5-Coder-3B-Instruct")
     },
     {
-        "local_dir": "/workspace/finetune_gemma/models/finetuned/socratic/qwen-3b-sft",
+        "local_dir": os.path.join(PROJECT_ROOT, "models/finetuned/socratic/qwen-3b-sft"),
         "repo_name": "qwen-socratic-lora",
         "base_model_id": "Qwen/Qwen2.5-3B-Instruct",
-        "local_base_path": "/workspace/finetune_gemma/finetune-socrates/models/base/Qwen2.5-3B-Instruct"
+        "local_base_path": os.path.join(PROJECT_ROOT, "finetune-socrates/models/base/Qwen2.5-3B-Instruct")
     }
 ]
 

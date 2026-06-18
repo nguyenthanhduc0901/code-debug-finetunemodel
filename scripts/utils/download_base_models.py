@@ -3,19 +3,23 @@ import os
 import argparse
 from huggingface_hub import snapshot_download
 
+# Resolve paths dynamically relative to project root
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
+
 # Base models to download
 BASE_MODELS = {
     "gemma4": {
         "repo_id": "google/gemma-4-E4B-it",
-        "local_dir": "/workspace/finetune_gemma/models/base/gemma-4-E4B-it"
+        "local_dir": os.path.join(PROJECT_ROOT, "models/base/gemma-4-E4B-it")
     },
     "qwen_coder": {
         "repo_id": "Qwen/Qwen2.5-Coder-3B-Instruct",
-        "local_dir": "/workspace/finetune_gemma/models/base/Qwen2.5-Coder-3B-Instruct"
+        "local_dir": os.path.join(PROJECT_ROOT, "models/base/Qwen2.5-Coder-3B-Instruct")
     },
     "qwen_instruct": {
         "repo_id": "Qwen/Qwen2.5-3B-Instruct",
-        "local_dir": "/workspace/finetune_gemma/models/base/Qwen2.5-3B-Instruct"
+        "local_dir": os.path.join(PROJECT_ROOT, "models/base/Qwen2.5-3B-Instruct")
     }
 }
 

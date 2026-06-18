@@ -3,19 +3,23 @@ import os
 import argparse
 from huggingface_hub import snapshot_download
 
+# Resolve paths dynamically relative to project root
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
+
 # Fine-tuned LoRA models to download
 LORA_MODELS = {
     "gemma4_lora": {
         "repo_id": "ntduc0901/gemma4-debugeval-lora",
-        "local_dir": "/workspace/finetune_gemma/models/finetuned/debugeval/gemma4-sft"
+        "local_dir": os.path.join(PROJECT_ROOT, "models/finetuned/debugeval/gemma4-sft")
     },
     "qwen_coder_lora": {
         "repo_id": "ntduc0901/qwen-debugeval-lora",
-        "local_dir": "/workspace/finetune_gemma/models/finetuned/debugeval/qwen-coder-3b-sft"
+        "local_dir": os.path.join(PROJECT_ROOT, "models/finetuned/debugeval/qwen-coder-3b-sft")
     },
     "qwen_socratic_lora": {
         "repo_id": "ntduc0901/qwen-socratic-lora",
-        "local_dir": "/workspace/finetune_gemma/models/finetuned/socratic/qwen-3b-sft"
+        "local_dir": os.path.join(PROJECT_ROOT, "models/finetuned/socratic/qwen-3b-sft")
     }
 }
 
