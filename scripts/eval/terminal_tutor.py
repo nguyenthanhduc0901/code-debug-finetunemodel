@@ -44,7 +44,7 @@ def main():
     print("def sum_even(lst):")
     print("    total = 0")
     print("    for num in lst:")
-    print("        if num % 2 == 1:  # <-- Bị lỗi ở đây (đang kiểm tra số lẻ)")
+    print("        if num % 2 == 1:  # <-- Bug here (checking for odd instead of even)")
     print("            total += num")
     print("    return total")
     print("```")

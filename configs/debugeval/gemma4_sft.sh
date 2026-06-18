@@ -1,5 +1,4 @@
 #!/bin/bash
-# SFT Fine-tuning for Gemma-4-E4B-it on DebugEval dataset
 
 source /venv/main/bin/activate
 

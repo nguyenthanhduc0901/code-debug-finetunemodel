@@ -11,7 +11,6 @@ mkdir -p $OUTPUT_DIR
 
 echo "Resuming SFT training for Qwen2.5-Coder-3B-Instruct from checkpoint-2800..."
 
-# Run SFT Fine-tuning (Resuming from checkpoint-2800)
 llamafactory-cli train \
     --stage sft \
     --do_train \

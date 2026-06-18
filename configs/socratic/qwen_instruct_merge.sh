@@ -1,7 +1,4 @@
 #!/bin/bash
-# Merge LoRA adapter with base model into a standalone model
-# This creates a full model that can be served without needing the adapter separately
-
 set -e
 source /venv/main/bin/activate
 

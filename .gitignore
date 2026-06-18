@@ -1,28 +1,28 @@
 # ==========================================
-# 1. Bỏ qua các tệp tin Models và Checkpoints
+# 1. Ignore Models and Checkpoints
 # ==========================================
-# Bỏ qua toàn bộ thư mục models ngoại trừ file cấu hình nếu có
+# Ignore all models except gitkeeps
 models/
 !models/.gitkeep
 
 # ==========================================
-# 2. Bỏ qua dữ liệu Datasets lớn
+# 2. Ignore Large Datasets
 # ==========================================
-# Chỉ bỏ qua dữ liệu của debugeval
+# Ignore DebugEval large data files
 data/debugeval/
 !data/debugeval/.gitkeep
 
-# Không bỏ qua socratic (sẽ được push lên Git)
+# Do not ignore socratic (will be pushed to Git)
 !data/socratic/
 
 # ==========================================
-# 3. Bỏ qua Logs và Scratch Files
+# 3. Ignore Logs and Scratch Files
 # ==========================================
 logs/
 scratch/
 
 # ==========================================
-# 4. Bỏ qua các file rác hệ thống và Python
+# 4. Ignore system and python temp/cache files
 # ==========================================
 __pycache__/
 *.py[cod]

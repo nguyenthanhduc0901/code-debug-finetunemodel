@@ -1,13 +1,4 @@
 #!/bin/bash
-# SFT Fine-tuning for Qwen2.5-3B-Instruct on Socratic Debugging dataset
-# Using LLaMA-Factory with LoRA (all-linear modules)
-#
-# Key design decisions:
-# - LoRA rank 64 with alpha 128 (2x scaling) for strong adaptation
-# - 5 epochs since dataset is small (~550 samples)
-# - Batch size 2 x grad_accum 4 = effective batch 8
-# - Lower learning rate (2e-5) for stable training on small data
-# - cutoff_len 2048 to fit multi-turn Socratic conversations
 
 set -e
 source /venv/main/bin/activate

@@ -11,7 +11,6 @@ mkdir -p $OUTPUT_DIR
 
 echo "Starting SFT training for Qwen2.5-Coder-3B-Instruct using LLaMA-Factory..."
 
-# Run SFT Fine-tuning (all-linear modules LoRA)
 llamafactory-cli train \
     --stage sft \
     --do_train \
