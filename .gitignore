@@ -13,3 +13,8 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 .env
+
+socratic-debugging-benchmark/*.jsonl
+socratic-debugging-benchmark/test-*
+socratic-debugging-benchmark/*qual_analysis*
+socratic-debugging-benchmark/socratic_benchmark*
