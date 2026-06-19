@@ -1,5 +1,4 @@
 #!/bin/bash
-# Wrapper script to run download_lora_adapters.py
 
 set -e
 source /venv/main/bin/activate

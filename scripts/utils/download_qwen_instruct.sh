@@ -1,8 +1,4 @@
 #!/bin/bash
-# Download Qwen2.5-3B-Instruct (General) from HuggingFace
-# This is the base model chosen for Socratic tutoring fine-tuning
-# Reason: General-purpose instruct model has better conversational ability
-#         and less "code-fixing" bias than the Coder variant.
 
 set -e
 source /venv/main/bin/activate

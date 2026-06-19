@@ -1,29 +1,12 @@
-# ==========================================
-# 1. Ignore Models and Checkpoints
-# ==========================================
-# Ignore all models except gitkeeps
 models/
 !models/.gitkeep
 
-# ==========================================
-# 2. Ignore Large Datasets
-# ==========================================
-# Ignore DebugEval large data files
 data/debugeval/
 !data/debugeval/.gitkeep
 
-# Do not ignore socratic (will be pushed to Git)
 !data/socratic/
-
-# ==========================================
-# 3. Ignore Logs and Scratch Files
-# ==========================================
 logs/
 scratch/
-
-# ==========================================
-# 4. Ignore system and python temp/cache files
-# ==========================================
 __pycache__/
 *.py[cod]
 *$py.class
