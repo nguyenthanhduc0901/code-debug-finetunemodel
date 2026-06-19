@@ -1,15 +1,7 @@
-#!/bin/bash
 source /venv/main/bin/activate
 
-# LLaMA-Factory needs to import modules from tools
 export PYTHONPATH=/workspace/finetune_gemma/tools/LLaMA-Factory/src:$PYTHONPATH
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-
-# Directory to save the checkpoints
-OUTPUT_DIR="/workspace/finetune_gemma/models/finetuned/debugeval/qwen-coder-3b-sft"
-mkdir -p $OUTPUT_DIR
-
-echo "Resuming SFT training for Qwen2.5-Coder-3B-Instruct from checkpoint-2800..."
 
 llamafactory-cli train \
     --stage sft \
@@ -23,7 +15,7 @@ llamafactory-cli train \
     --lora_rank 64 \
     --lora_alpha 128 \
     --lora_dropout 0.05 \
-    --output_dir $OUTPUT_DIR \
+    --output_dir /workspace/finetune_gemma/models/finetuned/debugeval/qwen-coder-3b-sft \
     --overwrite_cache \
     --overwrite_output_dir \
     --cutoff_len 2048 \

@@ -1,14 +1,7 @@
-#!/bin/bash
-
 source /venv/main/bin/activate
 
 export PYTHONPATH=/workspace/finetune_gemma/tools/LLaMA-Factory/src:$PYTHONPATH
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-
-OUTPUT_DIR="/workspace/finetune_gemma/models/finetuned/debugeval/gemma4-sft"
-mkdir -p $OUTPUT_DIR
-
-echo "Starting SFT training for Gemma-4-E4B-it using LLaMA-Factory..."
 
 llamafactory-cli train \
     --stage sft \
@@ -22,7 +15,7 @@ llamafactory-cli train \
     --lora_rank 64 \
     --lora_alpha 128 \
     --lora_dropout 0.05 \
-    --output_dir $OUTPUT_DIR \
+    --output_dir /workspace/finetune_gemma/models/finetuned/debugeval/gemma4-sft \
     --overwrite_cache \
     --overwrite_output_dir \
     --cutoff_len 2048 \
