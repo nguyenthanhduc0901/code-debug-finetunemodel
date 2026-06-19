@@ -1,9 +1,6 @@
-#!/bin/bash
 source /venv/main/bin/activate
 
 export CUDA_VISIBLE_DEVICES=0
-
-echo "Starting vLLM serving for merged Qwen2.5-Coder-3B model..."
 
 vllm serve /workspace/finetune_gemma/models/finetuned/debugeval/qwen-coder-3b-merged \
     --host 0.0.0.0 --port 8888 \
