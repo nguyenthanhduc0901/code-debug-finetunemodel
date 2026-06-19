@@ -197,7 +197,7 @@ def run_task1_localization(client, model_type, model_name, data, limit, verbose)
             running_acc = correct_count / (i + 1) * 100
             print(f'  📊 Evaluated: {i + 1}/{total_count} ({(i + 1) * 100 / total_count:.1f}%) | Running Acc: {running_acc:.1f}%', flush=True)
     acc = correct_count / total_count * 100 if total_count > 0 else 0.0
-    print(f'  ✅ Task 1 Results: {correct_count}/{total_count} correct (Accuracy: {acc:.2f}%)')
+    print(f'  [OK] Task 1 Results: {correct_count}/{total_count} correct (Accuracy: {acc:.2f}%)')
     return {'accuracy': acc, 'correct': correct_count, 'total': total_count}
 
 def run_task2_identification(client, model_type, model_name, data, limit, verbose):
@@ -229,7 +229,7 @@ def run_task2_identification(client, model_type, model_name, data, limit, verbos
             running_acc = correct_count / (i + 1) * 100
             print(f'  📊 Evaluated: {i + 1}/{total_count} ({(i + 1) * 100 / total_count:.1f}%) | Running Acc: {running_acc:.1f}%', flush=True)
     acc = correct_count / total_count * 100 if total_count > 0 else 0.0
-    print(f'  ✅ Task 2 Results: {correct_count}/{total_count} correct (Accuracy: {acc:.2f}%)')
+    print(f'  [OK] Task 2 Results: {correct_count}/{total_count} correct (Accuracy: {acc:.2f}%)')
     return {'accuracy': acc, 'correct': correct_count, 'total': total_count}
 
 def judge_single_problem(idx_item_raw_prompt):
@@ -313,7 +313,7 @@ def run_task3_repair(client, model_type, model_name, data, limit, verbose):
         running_acc = correct_count / (idx + 1) * 100
         print(f'  📊 Evaluated: {idx + 1}/{total_count} ({(idx + 1) * 100 / total_count:.1f}%) | Running Acc: {running_acc:.1f}%', flush=True)
     acc = correct_count / total_count * 100 if total_count > 0 else 0.0
-    print(f'  ✅ Task 3 Results: {correct_count}/{total_count} correct (Accuracy: {acc:.2f}%)')
+    print(f'  [OK] Task 3 Results: {correct_count}/{total_count} correct (Accuracy: {acc:.2f}%)')
     return {'accuracy': acc, 'correct': correct_count, 'total': total_count}
 
 def run_task4_review(client, model_type, model_name, data, limit, verbose):
@@ -361,7 +361,7 @@ def run_task4_review(client, model_type, model_name, data, limit, verbose):
             running_acc = correct_count / ((i + 1) * 2) * 100
             print(f'  📊 Evaluated: {i + 1}/{len(filtered_data)} ({(i + 1) * 100 / len(filtered_data):.1f}%) | Running Acc: {running_acc:.1f}%', flush=True)
     acc = correct_count / total_count * 100 if total_count > 0 else 0.0
-    print(f'  ✅ Task 4 Results: {correct_count}/{total_count} correct (Accuracy: {acc:.2f}%)')
+    print(f'  [OK] Task 4 Results: {correct_count}/{total_count} correct (Accuracy: {acc:.2f}%)')
     return {'accuracy': acc, 'correct': correct_count, 'total': total_count}
 
 class Logger(object):

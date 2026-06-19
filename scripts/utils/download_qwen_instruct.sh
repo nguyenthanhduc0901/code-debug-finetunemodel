@@ -20,7 +20,7 @@ snapshot_download(
     local_dir='${TARGET_DIR}',
     local_dir_use_symlinks=False,
 )
-print('✅ Download complete!')
+print('Download complete!')
 "
 
 echo ""

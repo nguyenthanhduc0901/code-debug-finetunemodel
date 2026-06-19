@@ -10,12 +10,12 @@ REPO_SRC = Path('/workspace/finetune_gemma/scripts/eval/socratic_schemas')
 if REPO_SRC.exists():
     sys.path.append(str(REPO_SRC))
 else:
-    print(f'❌ Error: {REPO_SRC} does not exist.')
+    print(f'Error: {REPO_SRC} does not exist.')
     sys.exit(1)
 try:
     from data import Evaluation, Scores, Example
 except ImportError as e:
-    print(f'❌ Error: Cannot import data structures from {REPO_SRC}: {e}')
+    print(f'Error: Cannot import data structures from {REPO_SRC}: {e}')
     sys.exit(1)
 
 def escape_template(str_template: str) -> str:
@@ -62,13 +62,13 @@ def main():
     inf_prompt_path = Path(args.inference_prompt)
     eval_prompt_path = Path(args.eval_prompt)
     if not dataset_path.exists():
-        print(f'❌ Dataset not found at: {dataset_path}')
+        print(f'Dataset not found at: {dataset_path}')
         sys.exit(1)
     if not inf_prompt_path.exists():
-        print(f'❌ Inference prompt template not found at: {inf_prompt_path}')
+        print(f'Inference prompt template not found at: {inf_prompt_path}')
         sys.exit(1)
     if not eval_prompt_path.exists():
-        print(f'❌ Eval prompt template not found at: {eval_prompt_path}')
+        print(f'Eval prompt template not found at: {eval_prompt_path}')
         sys.exit(1)
     print('=' * 60)
     print('Socratic Tutor Evaluation with Gemma-4 Judge')
@@ -96,7 +96,7 @@ def main():
             raw_answer = tutor_resp.choices[0].message.content
             tutor_answer = clean_tutor_response(raw_answer)
         except Exception as e:
-            print(f'\n❌ Error querying tutor for sample {idx}: {e}')
+            print(f'\n Error querying tutor for sample {idx}: {e}')
             tutor_answer = f'[ERROR] {e}'
             raw_answer = tutor_answer
         formatted_judge_prompt = judge_llm_prompt.format(conversation=prompt, answer=tutor_answer)
@@ -140,7 +140,7 @@ def main():
         print(f'Helpfulness Rate:     {scores.avg_helpfulness()}/1.00')
         print(f'Reveal Answer (Yes):  {scores.avg_reveal_answer()}')
     else:
-        print('❌ No valid evaluations parsed successfully.')
+        print('No valid evaluations parsed successfully.')
     print('=' * 60)
 if __name__ == '__main__':
     main()

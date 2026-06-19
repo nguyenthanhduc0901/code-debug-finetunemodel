@@ -26,8 +26,8 @@ def main():
         os.makedirs(local_dir, exist_ok=True)
         try:
             snapshot_download(repo_id=repo_id, local_dir=local_dir, local_dir_use_symlinks=False, token=args.token)
-            print(f'✅ Successfully downloaded {repo_id} to {local_dir}!')
+            print(f'Successfully downloaded {repo_id} to {local_dir}!')
         except Exception as e:
-            print(f'❌ Error downloading {repo_id}: {e}')
+            print(f'Error downloading {repo_id}: {e}')
 if __name__ == '__main__':
     main()

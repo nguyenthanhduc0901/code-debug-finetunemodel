@@ -27,7 +27,7 @@ def main():
     if not token:
         token = os.environ.get('HF_TOKEN')
     if not token:
-        print('❌ Error: Hugging Face token is missing. Please set HF_TOKEN env var or use --token.')
+        print('Error: Hugging Face token is missing. Please set HF_TOKEN env var or use --token.')
         sys.exit(1)
     api = HfApi(token=token)
     for item in MODELS_TO_UPLOAD:
@@ -37,7 +37,7 @@ def main():
         base_model_id = item['base_model_id']
         local_base_path = item['local_base_path']
         if not os.path.exists(local_dir):
-            print(f'❌ Local directory does not exist: {local_dir}. Skipping...')
+            print(f' Local directory does not exist: {local_dir}. Skipping...')
             continue
         print(f'\n==========================================')
         print(f'Processing & Uploading: {repo_name}')
@@ -49,8 +49,8 @@ def main():
             create_repo(repo_id=repo_id, token=token, private=True, exist_ok=True)
             print(f'Uploading folder content...')
             api.upload_folder(folder_path=local_dir, repo_id=repo_id, repo_type='model', token=token)
-            print(f'✅ Successfully uploaded {repo_name} to Hugging Face!')
+            print(f'Successfully uploaded {repo_name} to Hugging Face!')
         except Exception as e:
-            print(f'❌ Error uploading {repo_name}: {e}')
+            print(f'Error uploading {repo_name}: {e}')
 if __name__ == '__main__':
     main()

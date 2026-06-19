@@ -69,9 +69,9 @@ def print_sample_result(idx: int, messages: list[dict], expected: str | None, ge
     if expected:
         print(f'  Expected:         {expected[:120]}...')
     print(f'  Socratic Score:   {metrics['socratic_score']}/100')
-    print(f'  Has question:     {('✅' if metrics['has_question'] else '❌')}')
-    print(f'  Avoids direct fix:{('✅' if not metrics['gives_direct_fix'] else '❌')}')
-    print(f'  Socratic phrases: {('✅' if metrics['uses_socratic_phrases'] else '❌')}')
+    print(f'  Has question:     {('Yes' if metrics['has_question'] else 'No')}')
+    print(f'  Avoids direct fix:{('Yes' if not metrics['gives_direct_fix'] else 'No')}')
+    print(f'  Socratic phrases: {('Yes' if metrics['uses_socratic_phrases'] else 'No')}')
 
 def main():
     parser = argparse.ArgumentParser(description='Evaluate Socratic model')
@@ -118,8 +118,8 @@ def main():
         results_output = {'config': {'api_url': args.api_url, 'model_name': args.model_name, 'num_samples': len(test_data)}, 'aggregate': {'total': n, 'avg_socratic_score': sum((m['socratic_score'] for m in all_metrics)) / n, 'question_rate': sum((m['has_question'] for m in all_metrics)) / n, 'direct_fix_avoidance': sum((not m['gives_direct_fix'] for m in all_metrics)) / n, 'socratic_phrase_rate': sum((m['uses_socratic_phrases'] for m in all_metrics)) / n}, 'samples': all_results}
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(results_output, f, indent=2, ensure_ascii=False)
-        print(f'\n📄 Results saved to: {output_path}')
+        print(f'\n Results saved to: {output_path}')
     else:
-        print('\n❌ No samples evaluated.')
+        print('\nNo samples evaluated.')
 if __name__ == '__main__':
     main()
