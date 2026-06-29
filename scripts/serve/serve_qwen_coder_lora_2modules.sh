@@ -1,11 +1,13 @@
 source /venv/main/bin/activate
 
 export CUDA_VISIBLE_DEVICES=0
-export VLLM_USE_V1=0
 
 vllm serve /workspace/finetune_gemma/models/base/Qwen2.5-Coder-3B-Instruct \
     --host 0.0.0.0 --port 8888 \
-    --served-model-name qwen2.5-coder-3b-instruct \
+    --served-model-name qwen-sft \
+    --enable-lora \
+    --max-lora-rank 64 \
+    --lora-modules qwen-sft=/workspace/finetune_gemma/models/finetuned/debugeval/qwen-coder-3b-2modules-sft \
     --tensor-parallel-size 1 \
     --max-model-len 16384 \
     --gpu-memory-utilization 0.9 \

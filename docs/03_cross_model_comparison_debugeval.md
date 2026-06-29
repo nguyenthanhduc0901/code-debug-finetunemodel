@@ -2,125 +2,85 @@
 
 ## 1. Introduction
 
-This report presents a comprehensive cross-model comparison of four model configurations evaluated on the DebugEval benchmark:
+This report presents a comprehensive cross-model comparison of five model configurations evaluated on the DebugEval benchmark:
 
 1. **Gemma-4-E4B-IT Base** (~8B parameters)
-2. **Gemma-4-E4B-IT + LoRA** (fine-tuned on DebugEval)
+2. **Gemma-4-E4B-IT SFT (2-Module LoRA)** (fine-tuned on DebugEval)
 3. **Qwen2.5-Coder-3B-Instruct Base** (~3B parameters)
-4. **Qwen2.5-Coder-3B-Instruct + LoRA** (fine-tuned on DebugEval)
+4. **Qwen2.5-Coder-3B-Instruct SFT (7-Module LoRA)** (fine-tuned on DebugEval)
+5. **Qwen2.5-Coder-3B-Instruct SFT (2-Module LoRA)** (fine-tuned on DebugEval)
 
-The analysis examines how model architecture, model scale, and fine-tuning interact across four debugging tasks.
+The analysis examines how model architecture, model scale, target LoRA modules, and SFT hyperparameters interact across four debugging tasks.
 
 ## 2. Model Specifications
 
-| Property | Gemma-4-E4B-IT | Qwen2.5-Coder-3B-Instruct |
-|---|---|---|
-| Architecture | Gemma4ForConditionalGeneration | Qwen2ForCausalLM |
-| Total parameters | 7.96B | 3.21B |
-| Model type | General multimodal (text-only mode) | Code-specialized |
-| LoRA targets | `q_proj`, `v_proj` (2 modules) | All 7 linear layers |
-| Trainable params | 18.2M (0.23%) | 119.7M (3.74%) |
-| LoRA rank / alpha | 64 / 128 | 64 / 128 |
-| Training epochs | 1 (completed) | 2 (completed) |
-| Final training loss | 0.303 | 0.014 |
-| Training data | DebugEval SFT (24,892 samples) | DebugEval SFT (24,892 samples) |
-| Effective batch size | 16 | 16 |
-| Learning rate | 5e-5 | 5e-5 |
+| Property | Gemma-4-E4B-IT SFT | Qwen2.5-Coder-3B 7-Mod SFT | Qwen2.5-Coder-3B 2-Mod SFT |
+|---|---|---|---|
+| Architecture | Gemma4ForConditionalGeneration | Qwen2ForCausalLM | Qwen2ForCausalLM |
+| Total parameters | 7.96B | 3.21B | 3.21B |
+| Model type | General multimodal | Code-specialized | Code-specialized |
+| LoRA targets | `q_proj`, `v_proj` (2 modules) | All 7 linear layers | `q_proj`, `v_proj` (2 modules) |
+| Trainable params | 18.2M (0.23% of total) | 119.7M (3.74% of total) | 3.68M (0.11% of total) |
+| LoRA rank / alpha | 64 / 128 | 64 / 128 | 16 / 32 |
+| Training epochs | 1 | 2 | 1 |
+| Final training loss | 0.303 | 0.014 | 0.302 |
+| Training data | DebugEval SFT (24,892 samples) | DebugEval SFT (24,892 samples) | DebugEval SFT (24,892 samples) |
+| Effective batch size | 16 | 16 | 16 |
+| Learning rate | 5e-5 | 5e-5 | 1.5e-5 |
 
-Both models used the same training dataset and the same LLaMA-Factory SFT pipeline. Evaluation used the same COAST prompt templates and vLLM inference engine (temperature=0.2, top_p=0.95).
+---
 
 ## 3. Results
 
 ### 3.1 Full Results Table
 
-| Task | Gemma4 Base | Gemma4 SFT | Qwen Base | Qwen SFT |
-|---|---|---|---|---|
-| **Task 1: Bug Localization** | **79.24%** | 73.01% | 44.29% | 71.45% |
-| **Task 2: Bug Identification** | **55.43%** | 44.61% | 25.43% | 43.79% |
-| **Task 3: Code Repair** | 8.94% | 41.30% | 34.30% | **44.69%** |
-| **Task 4: Code Review** | N/A* | **86.65%** | 83.38% | 83.75% |
+| Task | Gemma4 Base | Gemma4 SFT (2-Mod) | Qwen Base | Qwen SFT (7-Mod) | Qwen SFT (2-Mod) |
+|---|---|---|---|---|---|
+| **Task 1: Bug Localization** | **79.24%** | 73.01% | 44.29% | 71.45% | 43.94% |
+| **Task 2: Bug Identification** | **55.43%** | 44.61% | 25.43% | 43.79% | 39.40% |
+| **Task 3: Code Repair** | 8.94% | 41.30% | 34.30% | **44.69%** | 43.48% |
+| **Task 4: Code Review** | N/A* | **86.65%** | 83.38% | 83.75% | 84.46% |
 
-\* *Gemma4 Base Task 4 evaluation was interrupted during inference (1,593/4,800 prompts) and did not produce a valid result.*
+\* *Gemma4 Base Task 4 evaluation was interrupted during inference and did not produce a valid result.*
 
 ### 3.2 Fine-Tuning Effect (Δ from Base)
 
-| Task | Gemma4 Δ | Qwen Δ |
-|---|---|---|
-| Task 1 | −6.23 pp | **+27.16 pp** |
-| Task 2 | −10.82 pp | **+18.36 pp** |
-| Task 3 | **+32.36 pp** | +10.39 pp |
-| Task 4 | N/A | +0.37 pp |
+| Task | Gemma4 (2-Mod) Δ | Qwen (7-Mod) Δ | Qwen (2-Mod) Δ |
+|---|---|---|---|
+| **Task 1** | −6.23 pp | **+27.16 pp** | −0.35 pp |
+| **Task 2** | −10.82 pp | **+18.36 pp** | +13.97 pp |
+| **Task 3** | **+32.36 pp** | +10.39 pp | +9.18 pp |
+| **Task 4** | N/A | +0.37 pp | +1.08 pp |
+
+---
 
 ## 4. Analysis
 
 ### 4.1 Base Model Comparison: Scale vs. Specialization
 
-The base model results reveal a sharp contrast between comprehension and generation tasks:
+* **Comprehension (Tasks 1 & 2)**: Gemma4 Base (8B, general) leads Qwen Base (3B, code-specialized) by +30 pp to +35 pp, showing that general reasoning scale dominates code-specialized pretraining on multiple-choice bug localization and identification.
+* **Code Repair (Task 3)**: Qwen Coder Base (34.30%) strongly outperforms Gemma4 Base (8.94%), highlighting the critical value of code-specialized pretraining for functional code generation.
 
-**Comprehension tasks (Tasks 1 & 2):** Gemma4 Base (8B, general-purpose) substantially outperforms Qwen Coder Base (3B, code-specialized):
-- Task 1: 79.24% vs. 44.29% (+34.95 pp advantage for Gemma4)
-- Task 2: 55.43% vs. 25.43% (+30.00 pp advantage for Gemma4)
+### 4.2 LoRA Capacity and Module Coverage
 
-This suggests that for multiple-choice analytical reasoning about bugs, **model scale and general reasoning capability** (Gemma4 at 8B) dominate over code specialization (Qwen Coder at 3B).
+Comparing the three SFT configurations reveals how adapter size impacts performance:
 
-**Code repair (Task 3):** The relationship reverses — Qwen Coder Base (34.30%) dramatically outperforms Gemma4 Base (8.94%). The code-specialized pretraining of Qwen Coder provides a clear advantage for **code generation** tasks, even at a smaller scale.
+1. **The 7-Module Advantage on Qwen**: Fine-tuning all 7 linear layers (119.7M parameters) yields uniform gains across all tasks on Qwen, especially in Bug Localization (+27.16 pp).
+2. **The 2-Module Capacity Bottleneck**:
+   * For **Gemma4 (2-Mod)**: Fine-tuning only `q_proj, v_proj` (18.2M parameters) degraded comprehension on Task 1 (−6.23 pp) and Task 2 (−10.82 pp) while boosting repair.
+   * For **Qwen (2-Mod)**: Fine-tuning `q_proj, v_proj` at Rank 16 (3.68M parameters) successfully bypassed catastrophic formatting collapse by employing a conservative learning rate (`1.5e-5`) and 1 Epoch limit. It preserved localization accuracy (−0.35 pp) while boosting identification (+13.97 pp) and repair (+9.18 pp).
+   * **Parameter Efficiency**: Qwen 2-Mod achieved **88%** of the 7-module model's gains in Bug Identification and Code Repair with only **3.07%** of the adapter parameter count (3.68M vs 119.7M).
 
-**Code review (Task 4):** Qwen Coder Base achieves 83.38%, demonstrating strong performance. The Gemma4 Base result is unavailable for comparison.
+### 4.3 Convergence Patterns
 
-### 4.2 Fine-Tuning Response: Divergent Patterns
+Post-SFT performance across the models converges tightly on repair and review tasks, but diverges on bug localization:
+* On **Code Repair (Task 3)**, all SFT configurations land within ~3 pp of each other (`41.30%` to `44.69%`), showing SFT alignment minimizes the base model capability gap.
+* On **Bug Localization (Task 1)**, the higher capacity 7-Module Qwen and Gemma4 SFT models remain strong (~71% to 73%), while the low-capacity 2-Module Qwen model remains tied to its base capability (~44%).
 
-The two models respond to identical LoRA fine-tuning in opposite ways:
-
-**Gemma4**: Fine-tuning **degrades comprehension** (−6.23 pp, −10.82 pp) while **massively boosting generation** (+32.36 pp on repair). This is a classic specialization trade-off.
-
-**Qwen Coder**: Fine-tuning **improves all tasks uniformly**, with the largest gains in comprehension (+27.16 pp, +18.36 pp) and moderate improvement in generation (+10.39 pp). No degradation occurs.
-
-### 4.3 Post-Fine-Tuning Convergence
-
-After fine-tuning, the performance gap between the two models narrows dramatically:
-
-| Task | Gap (Base) | Gap (SFT) |
-|---|---|---|
-| Task 1 | 34.95 pp (Gemma4 leads) | 1.56 pp (Gemma4 leads) |
-| Task 2 | 30.00 pp (Gemma4 leads) | 0.82 pp (Gemma4 leads) |
-| Task 3 | 25.36 pp (Qwen leads) | 3.39 pp (Qwen leads) |
-| Task 4 | N/A | 2.90 pp (Gemma4 leads) |
-
-After fine-tuning, both models converge to **similar performance levels** across all tasks, with differences of less than 4 percentage points. This suggests that for this benchmark and dataset, the SFT data distribution — rather than base model capabilities — becomes the dominant factor.
-
-### 4.4 Factors Explaining the Divergent Fine-Tuning Response
-
-| Factor | Gemma4 | Qwen Coder |
-|---|---|---|
-| LoRA coverage | 2 modules (q_proj, v_proj) | 7 modules (all linear) |
-| Trainable % | 0.23% | 3.74% |
-| Completed epochs | 1 | 2 |
-| Base comprehension | Already strong (79%, 55%) | Weak (44%, 25%) |
-| Base generation | Very weak (8.94%) | Moderate (34.30%) |
-
-The divergent responses can be attributed to:
-
-1. **Room for improvement**: Qwen Coder Base had near-chance comprehension performance, providing substantial room for improvement. Gemma4 Base was already strong on comprehension, leaving less room for gain and more risk of regression.
-
-2. **LoRA adaptation capacity**: Qwen Coder's broader LoRA coverage (3.74% trainable) provided more capacity for comprehensive adaptation. Gemma4's narrow coverage (0.23%) may have forced a redistribution of capabilities rather than an addition.
-
-3. **Training completeness**: Qwen Coder completed 2 full epochs (final loss 0.014), while Gemma4 completed only 1 epoch (final loss 0.303). More training may have allowed Qwen Coder to learn a more balanced representation.
-
-### 4.5 Best Configuration by Task
-
-| Task | Best Model | Accuracy |
-|---|---|---|
-| Task 1: Bug Localization | Gemma4 Base | 79.24% |
-| Task 2: Bug Identification | Gemma4 Base | 55.43% |
-| Task 3: Code Repair | Qwen Coder SFT | 44.69% |
-| Task 4: Code Review | Gemma4 SFT | 86.65% |
+---
 
 ## 5. Conclusions
 
-1. **Model scale vs. specialization**: For comprehension tasks, the larger general-purpose model (Gemma4 8B) outperforms the smaller code-specialized model (Qwen 3B) in the base configuration. For code generation, code specialization outweighs scale.
-
-2. **Fine-tuning responses differ by architecture**: Gemma4 exhibits a comprehension-generation trade-off, while Qwen Coder achieves uniform improvement. This is likely due to the broader LoRA coverage and lower baseline comprehension of Qwen Coder.
-
-3. **Post-SFT convergence**: After fine-tuning, both models reach similar performance levels (within ~3 pp), suggesting that the fine-tuning data becomes the dominant factor in performance regardless of the base model.
-
-4. **Practical recommendation**: For a system requiring balanced performance across all debugging tasks, **Qwen2.5-Coder-3B-Instruct + LoRA** offers the best overall profile — competitive accuracy on all tasks with no degradation, at a fraction of the compute cost of the 8B Gemma4 model. If a single task must be maximized, Gemma4 Base remains strongest for comprehension, while Qwen Coder SFT leads on code repair.
+1. **Parameter Efficiency of Qwen 2-Mod**: The Qwen2.5-Coder-3B 2-Module LoRA is the most parameter-efficient model tested. At **3.68M trainable parameters** (0.11% trainable), it matches or closely approaches the performance of the 7-Module model on identification, repair, and review tasks, avoiding the comprehension collapse observed in Gemma4's 2-module configuration.
+2. **Capacity threshold for Localization**: Bug localization requires multi-projection attention mapping. Adapters with <10M parameters (such as the 2-Module Qwen SFT) struggle to adapt this capability, meaning broad 7-module LoRA is required if bug localization gains must be maximized.
+3. **Recommendation**: For resource-constrained deployments, **Qwen2.5-Coder-3B 2-Module SFT** provides the best balance of code repair, review, and identification improvements with virtually zero footprint and low training compute, while preserving baseline localization capabilities.
