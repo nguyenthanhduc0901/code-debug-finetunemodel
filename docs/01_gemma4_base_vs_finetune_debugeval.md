@@ -76,35 +76,4 @@ Task 3 uses the OJ evaluation framework (`judgeLib`) which compiles and runs the
 | Task 1: Bug Localization | **79.24%** (458/578) | 73.01% (422/578) | −6.23 pp |
 | Task 2: Bug Identification | **55.43%** (1286/2320) | 44.61% (1035/2320) | −10.82 pp |
 | Task 3: Code Repair | 8.94% (37/414) | **41.30%** (171/414) | +32.36 pp |
-| Task 4: Code Review | Incomplete* | **86.65%** (4159/4800) | N/A |
-
-\* *The base model evaluation for Task 4 was interrupted during inference at 1,593/4,800 prompts and did not produce a final accuracy score. No partial evaluation results are available for this task.*
-
-## 4. Analysis
-
-### 4.1 Trade-Off Pattern: Understanding vs. Generation
-
-The results reveal a clear divergence between **comprehension tasks** (Tasks 1, 2) and **generation tasks** (Tasks 3, 4):
-
-- **Comprehension tasks degraded**: The fine-tuned model lost 6.23 and 10.82 percentage points on localization and identification respectively. These tasks require selecting from predefined options — a capability where the base model's general reasoning and broad pretraining knowledge provided an advantage.
-- **Code repair dramatically improved**: The most significant result is Task 3, where fine-tuning increased pass rate from 8.94% to 41.30% — a **4.6× improvement**. This indicates that LoRA adaptation successfully taught the model to generate syntactically and semantically correct code repairs that pass automated test cases.
-- **Code review performance**: The fine-tuned model achieved 86.65% on Task 4. Without a complete base model result for comparison, a direct conclusion cannot be drawn.
-
-### 4.2 Possible Causes of Comprehension Degradation
-
-1. **Prompt template mismatch**: The SFT variant uses different prompt templates (`llama_fine_tune`) with stricter formatting constraints. This may interfere with the model's natural reasoning patterns for multiple-choice tasks.
-2. **Catastrophic forgetting**: LoRA fine-tuning on Task 3-heavy data (code repair examples) may have biased the model toward code generation behaviors at the expense of analytical selection tasks.
-3. **LoRA target limitation**: Only `q_proj` and `v_proj` were targeted (2 of 7 possible linear layers), limiting the adaptation surface. This narrow targeting may be sufficient for learning generation patterns but insufficient for preserving comprehension capabilities.
-
-### 4.3 Training Observations
-
-- The model trained for only 1 epoch despite a 2-epoch configuration, possibly due to early stopping or an interruption. Whether completing the second epoch would have changed the comprehension-generation trade-off remains unknown.
-- The training loss curve shows rapid convergence (1.845 → ~0.3 in 1 epoch), suggesting the model adapted quickly to the SFT data distribution.
-
-## 5. Conclusions
-
-1. **LoRA fine-tuning significantly improves code repair capability** on Gemma-4-E4B-IT, achieving a 4.6× improvement on Task 3.
-2. **Comprehension tasks (localization, identification) degrade** after fine-tuning, with reductions of 6–11 percentage points.
-3. The results suggest a **specialization trade-off**: fine-tuning for code generation appears to come at the cost of multiple-choice analytical reasoning.
-4. The incomplete Task 4 base evaluation limits the ability to draw full conclusions about code review performance.
-5. Future work should explore whether targeting additional LoRA modules or adjusting the training data distribution could mitigate comprehension degradation while preserving repair gains.
+| Task 4: Code Review | 81.75% (3924/4800) | **86.65%** (4159/4800) | +4.90 pp |

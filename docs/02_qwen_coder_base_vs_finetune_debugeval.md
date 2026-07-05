@@ -70,41 +70,4 @@ This report presents an empirical comparison between the base Qwen2.5-Coder-3B-I
 | **Task 3: Code Repair** | 34.30% (142/414) | **44.69%** (185/414) | 43.48% (180/414) | +10.39 pp | +9.18 pp |
 | **Task 4: Code Review** | 83.38% (4002/4800) | 83.75% (4020/4800) | **84.46%** (4054/4800) | +0.37 pp | +1.08 pp |
 
----
 
-## 4. Analysis
-
-### 4.1 Comparative Performance of LoRA Variants
-
-The two configurations demonstrate distinct trade-offs based on adapter capacity (3.74% trainable parameters in the 7-module model vs. 0.11% in the 2-module model):
-
-#### Task 1: Bug Localization (Comprehension)
-* **7-Module Model**: Achieved a massive boost (+27.16 pp), reaching 71.45%.
-* **2-Module Model**: Maintained baseline performance (43.94% vs. 44.29%). 
-* **Insight**: Localization requires comprehensive reasoning across query, key, value, and projection layers. The 2-module adapter lacked the parameter capacity (only 3.6M parameters) to learn the new localization mapping effectively, but successfully avoided the catastrophic formatting collapse (which previously degraded performance to <4%) by using a moderate learning rate (`1.5e-5`), smaller rank (`16`), and a 1-epoch limit.
-
-#### Task 2: Bug Identification (Comprehension)
-* **7-Module Model**: Reached 43.79% (+18.36 pp).
-* **2-Module Model**: Reached 39.40% (+13.97 pp).
-* **Insight**: Despite having 97% fewer parameters, the 2-module model captured the vast majority of the identification capability gains, demonstrating high parameter efficiency.
-
-#### Task 3: Code Repair (Generation)
-* **7-Module Model**: Reached 44.69% (+10.39 pp).
-* **2-Module Model**: Reached 43.48% (+9.18 pp).
-* **Insight**: The generation improvements on code repair are nearly identical between the two configurations. This indicates that code repair tasks can be successfully fine-tuned with a very low parameter footprint (`q_proj, v_proj` target modules at Rank 16).
-
-#### Task 4: Code Review (Comprehension/Comparison)
-* **7-Module Model**: Reached 83.75% (+0.37 pp).
-* **2-Module Model**: Reached **84.46%** (+1.08 pp).
-* **Insight**: The 2-module model slightly outperformed the 7-module model, indicating that the base model's strong review capabilities were fully preserved and marginally enhanced.
-
----
-
-## 5. Conclusions
-
-1. **Parameter Efficiency**: The **2-Module LoRA configuration** (Rank 16, Alpha 32, 1 Epoch) is exceptionally parameter-efficient. With only **3.68M parameters** (0.11% trainable), it captures:
-   * **88%** of the 7-module model's gains in Bug Identification.
-   * **88%** of the 7-module model's gains in Code Repair.
-   * **100%+** of the performance in Code Review.
-2. **Specialization Trade-off**: The 2-module variant did not improve Bug Localization (Task 1), suggesting a minimum parameter threshold is required to adapt general reasoning/localization capabilities on small models.
-3. **Training Optimization**: The 2-module SFT requires careful regularization (lower learning rate `1.5e-5`, Alpha 32, and 1 Epoch) to prevent generation degeneration (such as infinite repetition loops observed with higher LR/epoch runs).
