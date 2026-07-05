@@ -72,24 +72,24 @@ This method uses `Gemma-4-E4B-it` as an independent judge to score the tutor res
 
 ### 4.1 Heuristic Evaluation Results (77 samples)
 
-| Metric | Qwen Base | Qwen Socratic SFT | Delta (SFT - Base) |
+| Metric | Qwen Base | Qwen Socratic 7-Mod SFT | Qwen Socratic 2-Mod SFT |
 |---|:---:|:---:|:---:|
-| **Average Socratic Score** | **73.2 / 100** | **68.6 / 100** | <font color="red">-4.6</font> *(See 5.1)* |
-| **Question Rate** | 93.5% (72/77) | 96.1% (74/77) | <font color="green">+2.6%</font> |
-| **Direct Fix Avoidance** | 100.0% (77/77) | 100.0% (77/77) | 0.0% |
-| **Socratic Phrase Rate** | 44.2% (34/77) | 31.2% (24/77) | <font color="red">-13.0%</font> |
-| **Suggests Debugging** | 26.0% (20/77) | 26.0% (20/77) | 0.0% |
-| **Average Response Length** | 55 words | 36 words | **-19 words (more concise)** |
+| **Average Socratic Score** | 73.2 / 100 | 68.6 / 100 | 70.4 / 100 |
+| **Question Rate** | 93.5% (72/77) | 96.1% (74/77) | 93.5% (72/77) |
+| **Direct Fix Avoidance** | 100.0% (77/77) | 100.0% (77/77) | 100.0% (77/77) |
+| **Socratic Phrase Rate** | 44.2% (34/77) | 31.2% (24/77) | 40.3% (31/77) |
+| **Suggests Debugging** | 26.0% (20/77) | 26.0% (20/77) | 9.1% (7/77) |
+| **Average Response Length** | 55 words | 36 words | 14 words |
 
-### 4.2 LLM Judge Evaluation Results (100 samples)
+### 4.2 LLM Judge Evaluation Results
 
-| Metric | Qwen Base | Qwen Socratic SFT | Delta (SFT - Base) |
+| Metric | Qwen Base | Qwen Socratic 7-Mod SFT | Qwen Socratic 2-Mod SFT |
 |---|:---:|:---:|:---:|
-| **Successfully parsed** | 100% (100/100) | 100% (100/100) | 0% |
-| **Avg Socratic Score (Judge)** | **81.6%** (0.816) | **93.6%** (0.936) | <font color="green">**+12.0% (Significant)**</font> |
-| **Questions Rate (Yes)** | 67.0% (67/100) | 89.0% (89/100) | <font color="green">**+22.0%**</font> |
-| **Reveal Answer (Yes - Leak)** | **22.0%** (22/100) | **3.0%** (3/100) | <font color="green">**-19.0% (Symmetric Improvement)**</font> |
-| **Average On-Topic Score** | 4.82 / 5.00 | 4.93 / 5.00 | +0.11 |
-| **Average Helpfulness Score** | 4.15 / 5.00 | 4.49 / 5.00 | +0.34 |
+| **Successfully parsed** | 100% (100/100) | 100% (100/100) | 100% (100/100) |
+| **Avg Socratic Score (Judge)** | 81.6% (0.816) | 93.6% (0.936) | 96.7% (0.967) |
+| **Questions Rate (Yes)** | 67.0% (67/100) | 89.0% (89/100) | 94.5% |
+| **Reveal Answer (Yes - Leak)** | 22.0% (22/100) | 3.0% (3/100) | 0.0% |
+| **Average On-Topic Score** | 4.82 / 5.00 | 4.93 / 5.00 | 4.84 / 5.00 |
+| **Average Helpfulness Score** | 4.15 / 5.00 | 4.49 / 5.00 | 4.78 / 5.00 |
 
 

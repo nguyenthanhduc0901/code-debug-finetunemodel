@@ -7,7 +7,7 @@ vllm serve /workspace/finetune_gemma/models/base/gemma-4-E4B-it \
     --served-model-name gemma-4-base \
     --dtype bfloat16 \
     --max-model-len 4096 \
-    --gpu-memory-utilization 0.52 \
+    --gpu-memory-utilization 0.70 \
     --enforce-eager \
     --trust-remote-code \
     --language-model-only

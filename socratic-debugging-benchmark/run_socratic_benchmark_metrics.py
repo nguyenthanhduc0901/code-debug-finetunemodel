@@ -111,7 +111,7 @@ def main(use_chat_prompt, generation_mode, num_responses, dataset_path, eval_met
             os.makedirs(output_dir)
         model_name_clean = model_name.replace("/", "_")
         metrics_path = f"{output_dir}/{model_name_clean}_{generation_mode}_{n}_responses.xlsx"
-        metrics_computer = MetricComputer(export_to_excel=True, export_path=metrics_path)
+        metrics_computer = MetricComputer(export_to_excel=False, export_path=metrics_path)
         responses = []
     else:
         chatgpt = ChatGPTModel(

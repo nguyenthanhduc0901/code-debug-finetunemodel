@@ -19,7 +19,9 @@ While previous evaluations (Document 4) focused on heuristic rules and LLM-as-a-
 1. **Gemma-4 Base (`gemma-4-e4b-it`)**
 2. **DeepSeek v4 Flash**
 3. **Gemini 3.1 Flash Lite**
-4. **Qwen SFT (`qwen2.5-finetuned`)**
+4. **Qwen Base (`Qwen2.5-3B-Instruct`)**
+5. **Qwen 7-Module SFT (`qwen2.5-finetuned`)**
+6. **Qwen 2-Module SFT (`qwen2.5-2modules-finetuned`)**
 
 ### 2.3 Evaluation Parameters
 * **Generation Mode**: `single` (the model generates a single tutor response turn).
@@ -47,12 +49,12 @@ The benchmark utilizes five metrics to gauge how closely the generated tutor res
 
 The evaluation script `run_socratic_benchmark_metrics.py` was executed across all 92 test cases. The resulting average scores across all test samples are summarized below:
 
-| Metric | Gemma-4 Base | DeepSeek v4 Flash | Gemini 3.1 Flash Lite | Qwen SFT (`qwen2.5-finetuned`) |
-| :--- | :---: | :---: | :---: | :---: |
-| **BLEU-4** | 0.038150 | **0.044580** | 0.043950 | 0.044044 |
-| **ROUGE-1** | 0.245120 | 0.267760 | 0.263850 | **0.283333** |
-| **ROUGE-2** | 0.081520 | 0.086480 | 0.074260 | **0.103338** |
-| **ROUGE-L** | 0.171200 | 0.190890 | 0.179490 | **0.237670** |
-| **BERTScore F1** | 0.835120 | 0.871840 | 0.870670 | **0.886699** |
+| Metric | Gemma-4 Base | DeepSeek v4 Flash | Gemini 3.1 Flash Lite | **Qwen Base (3B)** | Qwen 7-Module SFT | **Qwen 2-Module SFT** |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **BLEU-4** | 0.038150 | 0.044580 | 0.043950 | **0.026079** | 0.044044 | **0.059973** 🏆 |
+| **ROUGE-1** | 0.245120 | 0.267760 | 0.263850 | **0.141561** | **0.283333** | **0.263363** |
+| **ROUGE-2** | 0.081520 | 0.086480 | 0.074260 | **0.045566** | **0.103338** | **0.094414** |
+| **ROUGE-L** | 0.171200 | 0.190890 | 0.179490 | **0.100385** | **0.237670** | **0.201305** |
+| **BERTScore F1** | 0.835120 | 0.871840 | 0.870670 | **0.840335** | **0.886699** | **0.878126** |
 
 

@@ -20,7 +20,7 @@ class MetricComputer:
         self.table.field_names = ["Metric", "Score"]
         self.table.align["Metric"] = "l"
         self.table.align["Score"] = "r"
-        self.table.float_format = "0.2"
+        self.table.float_format = "0.6"
         self.export_to_excel = export_to_excel
         self.export_path = export_path
         
@@ -34,6 +34,7 @@ class MetricComputer:
                 self.table.add_row([metric_name, score])
 
         print(self.table)
+        print("RAW SCORES:", scores)
         # Compute scores for individual predictions
         if self.export_to_excel:
             self._export_excel(predictions, references, contexts)
