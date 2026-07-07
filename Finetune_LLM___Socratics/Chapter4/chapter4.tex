@@ -1,0 +1,118 @@
+\chapter{Tinh chỉnh mô hình ngôn ngữ lớn}
+\label{chap:finetuning}
+
+\section{Tổng quan pipeline huấn luyện và đánh giá}
+
+Pipeline tinh chỉnh mô hình gồm 4 giai đoạn: (1) Chuẩn bị dữ liệu, (2) Huấn luyện LoRA SFT, (3) Merge trọng số và triển khai inference với vLLM, (4) Đánh giá trên benchmark.
+
+% TODO: Chèn hình pipeline tại đây
+
+\section{Chuẩn bị dữ liệu}
+
+\subsection{DebugEval Dataset}
+
+Bộ dữ liệu DebugEval (COAST Benchmark) được xử lý thành định dạng SFT với tổng cộng \textbf{24.892 mẫu} huấn luyện, bao gồm:
+
+\begin{itemize}
+    \item \textbf{Task 1 --- Bug Localization (578 mẫu):} Xác định đoạn code chứa lỗi từ 4 lựa chọn (MCQ).
+    \item \textbf{Task 2 --- Bug Identification (2.320 mẫu):} Phân loại loại lỗi (MCQ).
+    \item \textbf{Task 3 --- Code Repair (414 mẫu):} Sinh code đã sửa lỗi, hỗ trợ 3 ngôn ngữ lập trình.
+    \item \textbf{Task 4 --- Code Review (2.400 × 2 chiều):} So sánh hai đoạn code, xác định đoạn chứa lỗi.
+\end{itemize}
+
+Dữ liệu thô ở định dạng JSONL được chuyển đổi sang định dạng Alpaca/ShareGPT phù hợp với LLaMA-Factory thông qua các script trong \texttt{scripts/utils/}.
+
+\subsection{Socratic Debugging Dataset}
+
+Bộ dữ liệu Socratic Debugging gồm các cuộc hội thoại thực tế giữa gia sư và sinh viên trong quá trình gỡ lỗi code:
+
+\begin{itemize}
+    \item \textbf{Tập train:} 552 mẫu hội thoại.
+    \item \textbf{Tập test:} 77 mẫu hội thoại.
+    \item \textbf{Định dạng:} ShareGPT (multi-turn conversation).
+\end{itemize}
+
+Mỗi mẫu bao gồm mã nguồn có lỗi, mô tả bài tập, và chuỗi câu hỏi--trả lời giữa gia sư (tutor) và sinh viên (student), trong đó gia sư luôn đặt câu hỏi dẫn dắt thay vì chỉ ra lỗi trực tiếp.
+
+\section{Huấn luyện LoRA}
+
+\subsection{Framework và công cụ}
+
+Quá trình huấn luyện sử dụng:
+\begin{itemize}
+    \item \textbf{LLaMA-Factory:} Framework tinh chỉnh LLM hỗ trợ LoRA, QLoRA, full fine-tuning với nhiều template mô hình.
+    \item \textbf{vLLM:} Engine inference hiệu suất cao hỗ trợ PagedAttention, continuous batching.
+    \item \textbf{Phần cứng:} GPU NVIDIA với $\geq$ 24GB VRAM.
+\end{itemize}
+
+\subsection{Cấu hình huấn luyện}
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{Siêu tham số huấn luyện cho các mô hình}
+\label{tab:hyperparams}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Tham số} & \textbf{DebugEval (Gemma4)} & \textbf{DebugEval (Qwen)} & \textbf{Socratic (Qwen)} \\
+\hline
+LoRA Rank & 64 & 64 & 64 \\
+\hline
+LoRA Alpha & 128 & 128 & 128 \\
+\hline
+Learning Rate & 5e-5 & 5e-5 & 2e-5 \\
+\hline
+Số epoch & 2 & 2 & 5 \\
+\hline
+Effective Batch Size & 16 & 16 & 8 \\
+\hline
+Cutoff Length & 2048 & 2048 & 2048 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Chiến lược chọn Target Layers}
+
+\begin{itemize}
+    \item \textbf{Gemma-4:} Chỉ tinh chỉnh $q\_proj$ và $v\_proj$ (0.23\% tham số trainable). Chiến lược này nhắm vào cơ chế attention, phù hợp với mô hình lớn (7.96B) để tiết kiệm tài nguyên.
+    \item \textbf{Qwen2.5:} Tinh chỉnh toàn bộ linear layers (3.74\% tham số trainable). Với mô hình nhỏ hơn (3.21B), phạm vi tinh chỉnh rộng hơn giúp đạt hiệu quả tốt hơn.
+\end{itemize}
+
+\section{Merge trọng số và triển khai inference}
+
+Sau khi huấn luyện, adapter LoRA được merge vào mô hình gốc (hoặc tải trực tiếp qua vLLM native LoRA) để phục vụ inference:
+
+\begin{itemize}
+    \item \textbf{Merge Mode:} Kết hợp $W_0 + BA$ thành trọng số mới, không cần adapter riêng khi inference. Dùng cho Gemma-4 và Qwen Socratic.
+    \item \textbf{Native LoRA Mode:} vLLM tải adapter LoRA trực tiếp, cho phép hot-swap giữa các adapter. Dùng cho Qwen Coder.
+\end{itemize}
+
+Các mô hình đã tinh chỉnh được đẩy lên Hugging Face và triển khai qua vLLM server trên các port riêng biệt.
+
+\section{Pipeline đánh giá}
+
+\subsection{DebugEval Benchmark}
+
+Mỗi task được đánh giá bằng metric riêng:
+
+\begin{itemize}
+    \item \textbf{Task 1, 2, 4:} Accuracy (so khớp option A/B/C/D với đáp án đúng).
+    \item \textbf{Task 3:} Pass Rate (code sinh ra được chạy qua test case trên Online Judge, tính tỷ lệ pass).
+    \item \textbf{Task 4:} Bidirectional Check (đánh giá cả 2 chiều hoán đổi input).
+\end{itemize}
+
+\subsection{Socratic Tutoring Evaluation}
+
+Đánh giá chất lượng Socratic theo 2 phương pháp:
+
+\textbf{Phương pháp 1 --- Heuristic Metrics:}
+\begin{itemize}
+    \item \textbf{Question Rate:} Tỷ lệ phản hồi chứa câu hỏi dẫn dắt.
+    \item \textbf{Answer Concealment:} Tỷ lệ phản hồi không tiết lộ đoạn code sửa lỗi.
+    \item \textbf{Socratic Phrases:} Đếm các cụm từ đặc trưng Socratic (``What do you think...'', ``Can you explain...'').
+\end{itemize}
+
+\textbf{Phương pháp 2 --- LLM-as-Judge:}
+Sử dụng Gemma-4-E4B-IT làm judge, đánh giá mỗi phản hồi trên thang điểm 5 cho 4 tiêu chí: On-Topic Relevance, Helpfulness, Quality of Questions, Answer Revelation.

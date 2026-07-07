@@ -1,0 +1,194 @@
+\chapter{Thiết kế và hiện thực hệ thống ứng dụng}
+\label{chap:implementation}
+
+\section{Kiến trúc hiện thực và công nghệ triển khai}
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{Công nghệ sử dụng trong hệ thống}
+\label{tab:tech_stack}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Thành phần} & \textbf{Công nghệ} & \textbf{Vai trò} \\
+\hline
+VS Code Extension & TypeScript, VS Code API & Client IDE \\
+\hline
+Web Portal & React, Vite, TailwindCSS & Teacher \& Student Portal \\
+\hline
+Backend API & Python, FastAPI & API Gateway, business logic \\
+\hline
+AI Runtime & LangGraph, LangChain & Orchestrate AI workflows \\
+\hline
+LLM Inference & vLLM & Phục vụ mô hình tinh chỉnh \\
+\hline
+Judge Server & Judge0, Docker & Chạy và chấm code \\
+\hline
+Database & PostgreSQL & Lưu trữ dữ liệu \\
+\hline
+Deployment & Docker Compose, AWS EC2 & Triển khai production \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\section{VS Code Extension}
+
+\subsection{Kiến trúc Extension}
+
+Extension được xây dựng bằng TypeScript, sử dụng VS Code Extension API. Các module chính:
+
+\begin{itemize}
+    \item \texttt{extension.js}: Entry point, đăng ký commands, khởi tạo các view.
+    \item \texttt{socratesChatView.js}: WebView chat Socratic với hỗ trợ Markdown rendering, syntax highlighting, và Input Box tương tác.
+    \item \texttt{assignmentTree.js}: TreeView Provider hiển thị danh sách bài tập trên Sidebar.
+    \item \texttt{assignmentDetailView.js}: WebView hiển thị chi tiết đề bài và cho phép nộp bài.
+    \item \texttt{loginView.js}: Giao diện đăng nhập tích hợp, lưu JWT token.
+    \item \texttt{apiClient.js}: HTTP client giao tiếp với Backend API.
+    \item \texttt{behaviorTracker.js}: Thu thập hành vi học tập (thời gian code, số lần submit, thao tác).
+    \item \texttt{examMode.js}: Quản lý chế độ kiểm tra với countdown và chatbot quota.
+\end{itemize}
+
+\subsection{Context Capture}
+
+Khi sinh viên tương tác với chatbot, Extension tự động trích xuất:
+\begin{itemize}
+    \item Code đang bôi đen (selection) hoặc toàn bộ file đang mở.
+    \item Ngôn ngữ lập trình của file hiện tại.
+    \item Lỗi từ Terminal output (nếu có).
+    \item Thông tin bài tập hiện tại (trong Classroom Mode).
+\end{itemize}
+
+\subsection{Chế độ Hint và Explain}
+
+Extension cung cấp toggle cho sinh viên chuyển đổi giữa hai chế độ:
+\begin{itemize}
+    \item \textbf{Hint Mode:} AI trả lời ngắn gọn bằng từ khóa, câu hỏi gợi ý ngắn.
+    \item \textbf{Explain Mode:} AI phân tích chi tiết, giải thích logic sai, đưa ví dụ minh họa.
+\end{itemize}
+
+\section{Backend API (FastAPI)}
+
+\subsection{Cấu trúc dự án}
+
+Backend được tổ chức theo kiến trúc layered:
+
+\begin{itemize}
+    \item \texttt{app/api/routes/}: Các endpoint REST API, phân chia theo chức năng.
+    \item \texttt{app/api/deps.py}: Dependency injection (database session, current user, auth).
+    \item \texttt{app/models/}: SQLAlchemy ORM models mapping đến PostgreSQL tables.
+    \item \texttt{app/schemas/}: Pydantic schemas cho request/response validation.
+    \item \texttt{app/services/}: Business logic layer, tách rời khỏi controller.
+    \item \texttt{app/agents/}: Các LangGraph workflow AI.
+    \item \texttt{app/core/}: Cấu hình, security, logging.
+    \item \texttt{app/db/}: Database connection, migration scripts.
+\end{itemize}
+
+\subsection{Xác thực và phân quyền}
+
+Hệ thống sử dụng JWT (JSON Web Token) cho xác thực:
+\begin{itemize}
+    \item Free Mode: Không cần xác thực, request được rate-limit theo IP/Device ID.
+    \item Classroom Mode: Yêu cầu JWT token hợp lệ, phân quyền RBAC (student, teacher, admin).
+\end{itemize}
+
+\section{LangGraph AI Runtime}
+
+\subsection{Graph Router}
+
+Mỗi request AI đi qua pipeline: Normalize Request $\rightarrow$ Auth + Policy Check $\rightarrow$ Intent Classification $\rightarrow$ Route đến workflow tương ứng $\rightarrow$ Audit Log.
+
+\subsection{StudentMentorGraph --- Socratic Mentor}
+
+Workflow cốt lõi gồm các node:
+
+\begin{enumerate}
+    \item \textbf{Analyzer Node:} Phân tích root cause dựa trên code, lỗi và kết quả Judge. Trả về JSON cấu trúc (error\_type, root\_cause, affected\_lines). Không giao tiếp trực tiếp với sinh viên.
+    \item \textbf{Planner Node (Hard-coded Logic):} Tính Scaffolding Level (1--4) dựa trên hồ sơ người học (mức độ độc lập, lịch sử lỗi tương tự). Sử dụng logic thuật toán thay vì LLM để chặn rủi ro sinh viên ``thao túng'' AI.
+    \item \textbf{Tutor Node:} Nhận phân tích từ Analyzer và giới hạn từ Planner, sinh phản hồi Socratic bằng ngôn ngữ tự nhiên. Có thể sinh Interactive Question yêu cầu sinh viên nhập đáp án.
+    \item \textbf{Evaluator/Memory Node:} Khởi chạy khi sinh viên PASS. Tóm tắt toàn bộ lịch sử hội thoại thành learning summary, cập nhật bộ nhớ dài hạn.
+\end{enumerate}
+
+\subsection{Anti-Solution Guard}
+
+Cơ chế chống tiết lộ đáp án được triển khai ở nhiều tầng:
+\begin{itemize}
+    \item \textbf{System Prompt:} Chỉ thị nghiêm ngặt cấm LLM viết lại code hoặc đưa đáp án.
+    \item \textbf{Planner Node:} Logic cứng kiểm soát mức độ hỗ trợ tối đa.
+    \item \textbf{Output Filter:} Kiểm tra phản hồi AI trước khi gửi đến sinh viên, phát hiện và loại bỏ code block có dấu hiệu là đáp án.
+\end{itemize}
+
+\subsection{Các workflow phụ trợ}
+
+\begin{itemize}
+    \item \textbf{ReverseTeachingGraph:} AI đóng vai sinh viên, đặt câu hỏi yêu cầu người học giải thích code. Hệ thống đánh giá câu trả lời dựa trên rubric tự động.
+    \item \textbf{ExerciseDraftGraph:} Hỗ trợ giảng viên tạo bài tập nháp, test case, rubric. AI sinh draft, giảng viên approve.
+    \item \textbf{TeacherInsightGraph:} Chatbot hỏi đáp cho giảng viên, truy vấn analytics từ database.
+    \item \textbf{StudentCoachGraph:} Chatbot trên web sinh viên, điều hướng học tập và theo dõi tiến độ.
+\end{itemize}
+
+\section{Web Portal (CodeMentor Web)}
+
+\subsection{Công nghệ}
+
+Web Portal được xây dựng bằng React + Vite + TailwindCSS + TypeScript, với cấu trúc:
+
+\begin{itemize}
+    \item \texttt{src/features/}: Feature-based modules (auth, classroom, assignment, dashboard).
+    \item \texttt{src/components/}: Shared UI components.
+    \item \texttt{src/services/}: API service layer.
+    \item \texttt{src/contexts/}: React Context cho state management.
+    \item \texttt{src/domain/}: Domain types và business rules.
+\end{itemize}
+
+\subsection{Teacher Portal}
+
+Các tính năng chính:
+\begin{itemize}
+    \item Quản lý lớp học: Tạo/sửa/xóa lớp, sinh mã tham gia.
+    \item Quản lý bài tập: Tạo đề bài (Markdown editor), cấu hình test case, thiết lập deadline.
+    \item Dashboard phân tích: Biểu đồ tỷ lệ Pass/Fail, phân loại lỗi phổ biến (Syntax/Logic/TLE/MLE), xem chi tiết từng sinh viên.
+\end{itemize}
+
+\subsection{Student Portal}
+
+\begin{itemize}
+    \item Dashboard cá nhân: Tiến độ hoàn thành bài tập, streak learning.
+    \item Lịch sử học tập: Xem lại từng bài đã hoàn thành, đọc bug history summary và gợi ý cốt lõi từ AI.
+    \item Chatbot AI (StudentCoachGraph): Hỏi đáp về tiến độ, xin gợi ý bài tập phù hợp.
+\end{itemize}
+
+\section{Judge Server}
+
+Hệ thống chấm bài sử dụng Judge0 --- Online Judge mã nguồn mở chạy trong Docker:
+
+\begin{itemize}
+    \item Nhận source code + language\_id + test cases từ Backend.
+    \item Biên dịch và thực thi trong sandbox cô lập (giới hạn CPU, RAM, thời gian, cấm network).
+    \item Trả về kết quả: status (Accepted/Wrong Answer/TLE/RE/CE), stdout, stderr, execution time, memory usage.
+    \item Bộ dữ liệu bài tập được seed từ Codeforces qua script \texttt{seed\_codeforces.py}.
+\end{itemize}
+
+\section{Triển khai hệ thống}
+
+\subsection{Docker Compose}
+
+Toàn bộ hệ thống được đóng gói bằng Docker Compose, bao gồm:
+\begin{itemize}
+    \item Container Backend (FastAPI + Uvicorn).
+    \item Container Judge0 (Judge Server + Workers).
+    \item Container PostgreSQL.
+    \item Container vLLM (phục vụ mô hình tinh chỉnh).
+\end{itemize}
+
+\subsection{Triển khai trên AWS EC2}
+
+Script \texttt{infra/setup\_ec2.sh} tự động cấu hình môi trường EC2:
+\begin{itemize}
+    \item Cài đặt Docker, Docker Compose, NVIDIA Container Toolkit.
+    \item Pull và khởi chạy các container.
+    \item Cấu hình firewall, SSL (nếu có).
+\end{itemize}
+
+Script \texttt{infra/deploy.ps1} tự động build, đẩy Docker image và deploy lên EC2.

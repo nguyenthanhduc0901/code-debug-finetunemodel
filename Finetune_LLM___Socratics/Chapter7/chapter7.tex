@@ -1,0 +1,70 @@
+\chapter{Kết luận và hướng phát triển}
+\label{chap:conclusion}
+
+\section{Tổng kết đề tài}
+
+Đồ án đã hoàn thành việc nghiên cứu, thiết kế và hiện thực hệ thống \textbf{Socrates Code Tutor} --- một hệ sinh thái gia sư lập trình AI tích hợp phương pháp Socratic, bao gồm:
+
+\begin{enumerate}
+    \item \textbf{VS Code Extension} hoạt động ở hai chế độ Free Mode và Classroom Mode, cho phép sinh viên chat với AI tutor, xem bài tập, nộp bài và nhận phản hồi trực tiếp trong IDE.
+    \item \textbf{Backend API} dựa trên FastAPI với kiến trúc LangGraph AI Runtime, điều phối 5 workflow AI chuyên biệt: StudentMentorGraph, TeacherInsightGraph, StudentCoachGraph, ExerciseDraftGraph, và ReverseTeachingGraph.
+    \item \textbf{Web Portal} cho giảng viên (quản lý lớp, bài tập, dashboard phân tích) và sinh viên (lịch sử học tập, chatbot điều hướng).
+    \item \textbf{Hệ thống chấm bài tự động} dựa trên Judge0 Sandbox với khả năng cô lập an toàn.
+    \item \textbf{Tinh chỉnh 3 mô hình ngôn ngữ lớn} (Gemma-4, Qwen2.5-Coder, Qwen2.5-Instruct) bằng kỹ thuật LoRA trên benchmark DebugEval và Socratic Debugging.
+\end{enumerate}
+
+\section{Các kết quả đã đạt được}
+
+\subsection{Kết quả nghiên cứu}
+
+\begin{itemize}
+    \item Qwen Coder + LoRA đạt cải thiện đồng đều trên cả 4 task DebugEval: Bug Localization +27pp, Bug Identification +18pp, Code Repair +10pp.
+    \item Gemma-4 + LoRA đạt cải thiện Code Repair vượt trội 4.6 lần (từ 8.94\% lên 41.30\%).
+    \item Sau fine-tuning, cả hai mô hình hội tụ về hiệu năng tương đồng, gợi ý tầm quan trọng của chất lượng dữ liệu.
+    \item Mô hình Socratic Tutor đạt Question Rate 96.1\%, Answer Concealment 100\%, On-Topic Relevance 4.93/5, Helpfulness 4.49/5.
+\end{itemize}
+
+\subsection{Kết quả kỹ thuật}
+
+\begin{itemize}
+    \item Hoàn thành hệ thống end-to-end từ Extension đến Backend, Web, Judge Server, AI Runtime.
+    \item Triển khai thành công trên AWS EC2 với Docker Compose.
+    \item Các mô hình LoRA adapter được công bố trên Hugging Face.
+\end{itemize}
+
+\section{Đóng góp của đề tài}
+
+\begin{enumerate}
+    \item \textbf{Đóng góp khoa học:} Cung cấp phân tích so sánh định lượng hiệu quả LoRA fine-tuning trên Code Debugging và Socratic Tutoring, bao gồm phân tích specialization trade-off và convergence behavior.
+    \item \textbf{Đóng góp kỹ thuật:} Xây dựng hoàn chỉnh một hệ thống giáo dục AI tích hợp IDE, có kiến trúc rõ ràng và khả năng mở rộng.
+    \item \textbf{Đóng góp sư phạm:} Chứng minh tính khả thi của việc ứng dụng phương pháp Socratic vào AI tutor với cơ chế Anti-Solution Guard, đạt tỷ lệ che giấu đáp án 100\%.
+    \item \textbf{Tài nguyên mở:} Các mô hình LoRA adapter và pipeline đánh giá được công bố phục vụ nghiên cứu.
+\end{enumerate}
+
+\section{Hướng phát triển}
+
+\subsection{Mở rộng mô hình AI}
+
+\begin{itemize}
+    \item Nghiên cứu multi-task fine-tuning để khắc phục hiện tượng specialization trade-off ở Gemma-4.
+    \item Mở rộng bộ dữ liệu Socratic với các cuộc hội thoại bằng tiếng Việt.
+    \item Thử nghiệm QLoRA (4-bit quantization) để giảm yêu cầu VRAM.
+    \item Tích hợp Retrieval-Augmented Generation (RAG) để AI tham khảo tài liệu giáo trình khi hướng dẫn.
+\end{itemize}
+
+\subsection{Mở rộng tính năng hệ thống}
+
+\begin{itemize}
+    \item Hỗ trợ thêm các IDE khác (JetBrains, Zed).
+    \item Tích hợp bài tập từ nhiều nguồn (Codeforces, LeetCode, bài tập tùy chỉnh).
+    \item Gamification: Hệ thống điểm, huy hiệu, bảng xếp hạng để tăng động lực học tập.
+    \item Voice-based tutoring: Hỗ trợ giọng nói cho sinh viên khuyết tật thị giác.
+\end{itemize}
+
+\subsection{Đánh giá mở rộng}
+
+\begin{itemize}
+    \item Thực hiện user study với quy mô lớn (1 lớp $\sim$ 50 sinh viên) trong 1 học kỳ.
+    \item So sánh hiệu quả học tập giữa nhóm sử dụng Socratic AI và nhóm sử dụng ChatGPT thông thường.
+    \item Đánh giá tác động dài hạn lên kỹ năng tư duy phản biện và gỡ lỗi của sinh viên.
+\end{itemize}

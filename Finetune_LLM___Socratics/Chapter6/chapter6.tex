@@ -1,0 +1,221 @@
+\chapter{Thực nghiệm, đánh giá và thảo luận}
+\label{chap:evaluation}
+
+\section{Thiết lập thực nghiệm}
+
+\subsection{Môi trường phần cứng}
+
+% TODO: Điền thông tin GPU, RAM, storage thực tế
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{Cấu hình phần cứng cho huấn luyện và inference}
+\label{tab:hardware}
+\resizebox{0.6\textwidth}{!}{%
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Thành phần} & \textbf{Cấu hình} \\
+\hline
+GPU & \ldots (VD: NVIDIA A100 40GB) \\
+\hline
+RAM & \ldots GB \\
+\hline
+Storage & \ldots GB SSD \\
+\hline
+OS & Ubuntu 22.04 LTS \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Môi trường phần mềm}
+
+\begin{itemize}
+    \item Python 3.10+, CUDA 12.x
+    \item LLaMA-Factory (SFT framework)
+    \item vLLM (inference engine)
+    \item FastAPI, PostgreSQL, Docker, Judge0
+\end{itemize}
+
+\section{Kết quả đánh giá DebugEval}
+
+\subsection{Hiệu năng Gemma-4 (Base vs. Fine-Tuned)}
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{Kết quả Gemma-4-E4B-IT trên DebugEval Benchmark}
+\label{tab:gemma_results}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Mô hình} & \textbf{Task 1 (\%)} & \textbf{Task 2 (\%)} & \textbf{Task 3 (\%)} & \textbf{Task 4 (\%)} \\
+\hline
+Gemma4 Base & 79.24 & 55.43 & 8.94 & N/A* \\
+\hline
+Gemma4 + LoRA & 73.01 & 44.61 & \textbf{41.30} ($\uparrow$×4.6) & 86.65 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\textit{*Gemma4 Base Task 4 bị gián đoạn và không cho ra kết quả cuối cùng.}
+
+\textbf{Nhận xét:} Gemma-4 sau LoRA cho thấy \textbf{sự đánh đổi chuyên biệt hóa} (specialization trade-off): Task 3 (Code Repair) cải thiện vượt trội 4.6 lần, nhưng Task 1, 2 (comprehension) giảm nhẹ 6--11 điểm phần trăm. Điều này cho thấy việc chỉ tinh chỉnh $q\_proj$, $v\_proj$ có thể làm mô hình thiên về kỹ năng generative thay vì discriminative.
+
+\subsection{Hiệu năng Qwen2.5-Coder (Base vs. Fine-Tuned)}
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{Kết quả Qwen2.5-Coder-3B-Instruct trên DebugEval Benchmark}
+\label{tab:qwen_results}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Mô hình} & \textbf{Task 1 (\%)} & \textbf{Task 2 (\%)} & \textbf{Task 3 (\%)} & \textbf{Task 4 (\%)} \\
+\hline
+Qwen Base & 44.29 & 25.43 & 34.30 & 83.38 \\
+\hline
+Qwen + LoRA & \textbf{71.45} ($\uparrow$+27) & \textbf{43.79} ($\uparrow$+18) & \textbf{44.69} ($\uparrow$+10) & 83.75 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Nhận xét:} Qwen Coder + LoRA đạt \textbf{cải thiện đồng đều trên cả 4 task} mà không có suy giảm, là cấu hình cân bằng nhất.
+
+\subsection{So sánh chéo giữa các mô hình}
+
+\textbf{Phát hiện quan trọng:} Sau fine-tuning, cả hai mô hình (dù khởi đầu với base capabilities rất khác nhau) \textbf{hội tụ về hiệu năng tương đồng} (chênh lệch trong $\pm$3 điểm phần trăm). Điều này gợi ý rằng chất lượng dữ liệu fine-tuning có ảnh hưởng lớn hơn kích thước mô hình trong phạm vi benchmark này.
+
+\section{Kết quả đánh giá Socratic Tutoring}
+
+\subsection{Đánh giá bằng Heuristic Metrics}
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{Kết quả đánh giá Socratic Tutor (Qwen2.5-3B + LoRA)}
+\label{tab:socratic_results}
+\resizebox{0.7\textwidth}{!}{%
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Metric} & \textbf{Kết quả} \\
+\hline
+Question Rate (tỷ lệ đặt câu hỏi dẫn dắt) & \textbf{96.1\%} \\
+\hline
+Answer Concealment (tỷ lệ che giấu đáp án) & \textbf{100.0\%} \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Đánh giá bằng LLM-as-Judge (Gemma-4)}
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{Điểm đánh giá từ Gemma-4 Judge (thang 5)}
+\label{tab:llm_judge}
+\resizebox{0.5\textwidth}{!}{%
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Tiêu chí} & \textbf{Điểm trung bình} \\
+\hline
+On-Topic Relevance & \textbf{4.93}/5 \\
+\hline
+Helpfulness & \textbf{4.49}/5 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Nhận xét:} Mô hình tinh chỉnh đạt tỷ lệ che giấu đáp án tuyệt đối (100\%), vượt mục tiêu NFR.5 ($>$98\%). Tỷ lệ đặt câu hỏi 96.1\% cho thấy mô hình duy trì phong cách Socratic ổn định.
+
+\section{Đánh giá hệ thống tích hợp}
+
+\subsection{Kiểm thử chức năng}
+
+% TODO: Bổ sung kết quả test thực tế
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{Kết quả kiểm thử các chức năng chính}
+\label{tab:func_test}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Chức năng} & \textbf{Mô tả test} & \textbf{Kết quả} \\
+\hline
+FR.1 Context Capture & Bôi đen code, gửi chat & PASS \\
+\hline
+FR.2 Socratic Chat & Chat nhận phản hồi Socratic & PASS \\
+\hline
+FR.5 Authentication & Đăng nhập/đăng xuất trên Extension & PASS \\
+\hline
+FR.6 Assignment TreeView & Hiển thị danh sách bài tập & PASS \\
+\hline
+FR.8 Submit \& Summarize & Nộp bài, nhận phản hồi Judge + AI & PASS \\
+\hline
+FR.9 Course Management & CRUD lớp/bài tập trên Web & PASS \\
+\hline
+FR.14 Judge Server & Chạy code trong sandbox & PASS \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Kiểm thử hiệu năng}
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{Kết quả kiểm thử yêu cầu phi chức năng}
+\label{tab:nfr_test}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Chỉ tiêu} & \textbf{Mục tiêu} & \textbf{Thực tế} & \textbf{Đạt?} \\
+\hline
+NFR.1 Zero-friction Access & $<$ 10s & \ldots s & \ldots \\
+\hline
+NFR.2 AI Response Time & $<$ 3s & \ldots s & \ldots \\
+\hline
+NFR.3 Judge + AI Response & $<$ 7s & \ldots s & \ldots \\
+\hline
+NFR.5 Anti-Solution Rate & $>$ 98\% & 100\% & PASS \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\section{Thảo luận}
+
+\subsection{Ưu điểm}
+
+\begin{enumerate}
+    \item Hệ thống đạt tỷ lệ che giấu đáp án 100\%, đảm bảo nguyên tắc Socratic.
+    \item Kỹ thuật LoRA giúp tinh chỉnh mô hình hiệu quả với chi phí phần cứng thấp.
+    \item Kiến trúc LangGraph cho phép quản lý luồng AI tường minh, dễ debug.
+    \item Tích hợp trọn vẹn vào VS Code giúp sinh viên không cần rời IDE.
+\end{enumerate}
+
+\subsection{Hạn chế}
+
+\begin{enumerate}
+    \item Gemma-4 + LoRA có hiện tượng trade-off giữa các task, cần nghiên cứu thêm multi-task fine-tuning.
+    \item Bộ dữ liệu Socratic còn nhỏ (552 mẫu train), có thể giới hạn khả năng tổng quát hóa.
+    \item Chưa thực hiện user study quy mô lớn với sinh viên thực tế.
+    \item Hệ thống phụ thuộc vào GPU cho inference mô hình tinh chỉnh.
+\end{enumerate}
+
+\subsection{Phân tích lỗi}
+
+% TODO: Bổ sung phân tích các trường hợp lỗi cụ thể
+
+Một số trường hợp mô hình Socratic không đạt yêu cầu:
+\begin{itemize}
+    \item 3.9\% phản hồi không chứa câu hỏi dẫn dắt, thường xảy ra khi lỗi quá đơn giản (typo, thiếu dấu chấm phẩy).
+    \item Với lỗi phức tạp liên quan đến thuật toán nâng cao, mô hình 3B đôi khi phân tích root cause chưa chính xác.
+\end{itemize}

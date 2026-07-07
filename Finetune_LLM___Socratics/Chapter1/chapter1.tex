@@ -1,0 +1,94 @@
+\chapter{Giới thiệu}
+\label{chap:introduction}
+
+\section{Bối cảnh và động lực thực hiện đề tài}
+
+Trong bối cảnh chuyển đổi số giáo dục, nhu cầu về các công cụ hỗ trợ học lập trình ngày càng tăng cao. Các nền tảng trực tuyến như LeetCode, HackerRank hay Codeforces cung cấp kho bài tập phong phú, nhưng thiếu đi yếu tố \textit{dẫn dắt tư duy} --- sinh viên thường chỉ nhận được kết quả đúng/sai từ hệ thống chấm tự động mà không được hướng dẫn \textit{tại sao} lời giải của mình sai và \textit{làm thế nào} để khắc phục.
+
+Sự bùng nổ của các mô hình ngôn ngữ lớn (Large Language Models --- LLM) như GPT-4, Gemini, Qwen2.5 đã mở ra khả năng xây dựng các hệ thống gia sư AI có khả năng đối thoại tự nhiên. Tuy nhiên, các chatbot AI hiện tại (ChatGPT, GitHub Copilot) thường \textbf{đưa đáp án trực tiếp}, vi phạm nguyên tắc sư phạm và khiến người học phụ thuộc vào AI thay vì phát triển tư duy giải quyết vấn đề.
+
+Từ quan sát trên, nhóm nhận thấy cần một hệ thống AI tutor tích hợp vào môi trường lập trình, áp dụng phương pháp sư phạm Socratic --- không đưa đáp án mà khơi gợi tư duy qua các câu hỏi dẫn dắt --- kết hợp với hạ tầng quản lý lớp học để phục vụ cả người tự học lẫn môi trường giảng dạy đại học.
+
+\section{Vấn đề nghiên cứu và bài toán thực tiễn}
+
+Bài toán thực tiễn mà đề tài giải quyết bao gồm:
+
+\begin{enumerate}
+    \item \textbf{Bài toán 1 --- Gia sư AI Socratic:} Xây dựng một chatbot AI tích hợp trong VS Code Extension có khả năng phân tích lỗi code của sinh viên, nhưng thay vì đưa đáp án, chatbot phải dẫn dắt sinh viên tự phát hiện lỗi thông qua chuỗi câu hỏi mang tính gợi mở (Socratic Questioning).
+    \item \textbf{Bài toán 2 --- Tinh chỉnh mô hình ngôn ngữ lớn:} Các LLM thương mại (GPT-4, Gemini) có xu hướng đưa code đáp án dù được yêu cầu không làm vậy. Đề tài nghiên cứu kỹ thuật tinh chỉnh tham số hiệu quả (Parameter-Efficient Fine-Tuning) với LoRA để huấn luyện các mô hình chuyên biệt cho hai nhiệm vụ: gỡ lỗi code (Code Debugging) và hướng dẫn Socratic (Socratic Tutoring).
+    \item \textbf{Bài toán 3 --- Hệ sinh thái lớp học:} Xây dựng nền tảng web cho phép giảng viên quản lý lớp, giao bài tập, theo dõi phân tích lỗi phổ biến của cả lớp; sinh viên xem lại lịch sử học tập và tóm tắt kinh nghiệm gỡ lỗi.
+\end{enumerate}
+
+\section{Mục tiêu của đề tài}
+
+Đề tài đặt ra các mục tiêu cụ thể sau:
+
+\begin{itemize}
+    \item Thiết kế và hiện thực một VS Code Extension đóng vai trò gia sư lập trình AI, hoạt động ở hai chế độ: Free Mode (không cần đăng nhập) và Classroom Mode (tích hợp lớp học).
+    \item Tinh chỉnh các mô hình ngôn ngữ lớn Gemma-4-E4B-IT và Qwen2.5 bằng kỹ thuật LoRA trên bộ dữ liệu DebugEval và Socratic Debugging Benchmark, đánh giá hiệu năng trước và sau tinh chỉnh.
+    \item Xây dựng kiến trúc AI dựa trên LangGraph với các workflow chuyên biệt: StudentMentorGraph, TeacherInsightGraph, ReverseTeachingGraph, ExerciseDraftGraph.
+    \item Phát triển nền tảng web (Teacher Portal, Student Portal) và hệ thống chấm bài tự động dựa trên Judge0 Sandbox.
+    \item Triển khai hệ thống trên hạ tầng cloud (AWS EC2) với Docker.
+\end{itemize}
+
+\section{Đối tượng và phạm vi nghiên cứu}
+
+\subsection{Đối tượng nghiên cứu}
+
+\begin{itemize}
+    \item Phương pháp sư phạm Socratic và lý thuyết Giàn giáo nhận thức (Scaffolding) trong dạy lập trình.
+    \item Kỹ thuật tinh chỉnh tham số hiệu quả (LoRA) cho mô hình ngôn ngữ lớn.
+    \item Kiến trúc đa workflow dựa trên LangGraph cho hệ thống AI tương tác.
+    \item Hệ thống chấm bài tự động với sandbox cô lập (Judge0).
+\end{itemize}
+
+\subsection{Phạm vi nghiên cứu}
+
+\begin{itemize}
+    \item Hỗ trợ các ngôn ngữ lập trình: Python, C/C++, Java.
+    \item Mô hình tinh chỉnh: Gemma-4-E4B-IT (7.96B), Qwen2.5-Coder-3B-Instruct, Qwen2.5-3B-Instruct.
+    \item Benchmark đánh giá: DebugEval (COAST) với 4 task và Socratic Debugging Dataset.
+    \item Nền tảng: VS Code Extension (TypeScript), Backend (FastAPI/Python), Web (React/Vite), Database (PostgreSQL).
+\end{itemize}
+
+\section{Câu hỏi nghiên cứu}
+
+\begin{enumerate}
+    \item Kỹ thuật LoRA có thể cải thiện khả năng gỡ lỗi code (bug localization, identification, repair, review) của LLM đến mức nào so với mô hình gốc?
+    \item Mô hình tinh chỉnh với dữ liệu Socratic có thể duy trì tỷ lệ đặt câu hỏi dẫn dắt cao ($>$95\%) và tỷ lệ che giấu đáp án tuyệt đối (100\%) hay không?
+    \item Kiến trúc LangGraph với các workflow chuyên biệt có hiệu quả hơn kiến trúc multi-agent truyền thống trong bối cảnh MVP giáo dục hay không?
+    \item Việc tích hợp trực tiếp AI tutor vào IDE (VS Code) có cải thiện trải nghiệm học tập so với các nền tảng web-based truyền thống?
+\end{enumerate}
+
+\section{Định hướng giải pháp tổng quan}
+
+Hệ thống \textbf{Socrates Code Tutor} được xây dựng theo kiến trúc client-server với 4 thành phần chính:
+
+\begin{enumerate}
+    \item \textbf{VS Code Extension} (Client): Cung cấp giao diện chat Socratic, trích xuất ngữ cảnh code, hiển thị bài tập dạng TreeView, và hỗ trợ nộp bài trực tiếp từ IDE.
+    \item \textbf{FastAPI Backend} (Server): Xử lý logic nghiệp vụ, xác thực, điều phối AI Runtime và Judge Server.
+    \item \textbf{LangGraph AI Runtime}: Kiến trúc single orchestrated graph với các route chuyên biệt cho từng workflow AI (mentor, analytics, exercise drafting, reverse teaching).
+    \item \textbf{Judge0 Sandbox}: Hệ thống chấm bài tự động trong Docker container cô lập.
+\end{enumerate}
+
+\section{Đóng góp chính của đề tài}
+
+\begin{enumerate}
+    \item \textbf{Về mặt khoa học:} Nghiên cứu và đánh giá định lượng hiệu quả của kỹ thuật LoRA fine-tuning trên hai nhiệm vụ Code Debugging và Socratic Tutoring, cung cấp phân tích so sánh chéo giữa các cấu hình mô hình.
+    \item \textbf{Về mặt kỹ thuật:} Xây dựng hoàn chỉnh một hệ sinh thái giáo dục gồm VS Code Extension, Web Platform, Backend API, Judge Server và AI Runtime, có khả năng triển khai thực tế.
+    \item \textbf{Về mặt sư phạm:} Ứng dụng phương pháp Socratic vào AI tutor với cơ chế chống tiết lộ đáp án (Anti-Solution Guard), đảm bảo sinh viên phát triển tư duy thay vì phụ thuộc AI.
+\end{enumerate}
+
+\section{Cấu trúc báo cáo}
+
+Báo cáo đồ án được tổ chức thành 7 chương:
+
+\begin{itemize}
+    \item \textbf{Chương 1 --- Giới thiệu:} Trình bày bối cảnh, mục tiêu, phạm vi và đóng góp của đề tài.
+    \item \textbf{Chương 2 --- Cơ sở lý thuyết và các công trình liên quan:} Tổng quan các nền tảng lý thuyết về LLM, LoRA, phương pháp Socratic, LangGraph và các công trình liên quan.
+    \item \textbf{Chương 3 --- Phân tích bài toán và thiết kế giải pháp tổng thể:} Mô tả bài toán, thiết kế kiến trúc hệ thống, cơ sở dữ liệu và luồng xử lý AI.
+    \item \textbf{Chương 4 --- Tinh chỉnh mô hình ngôn ngữ lớn:} Chi tiết quy trình chuẩn bị dữ liệu, huấn luyện LoRA và pipeline đánh giá.
+    \item \textbf{Chương 5 --- Thiết kế và hiện thực hệ thống ứng dụng:} Hiện thực chi tiết Backend, VS Code Extension, Web Platform, Judge Server.
+    \item \textbf{Chương 6 --- Thực nghiệm, đánh giá và thảo luận:} Kết quả thực nghiệm trên DebugEval, đánh giá Socratic Tutoring và kiểm thử hệ thống.
+    \item \textbf{Chương 7 --- Kết luận và hướng phát triển:} Tổng kết, đánh giá đóng góp và định hướng mở rộng.
+\end{itemize}

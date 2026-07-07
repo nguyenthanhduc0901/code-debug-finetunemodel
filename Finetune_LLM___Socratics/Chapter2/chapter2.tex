@@ -1,0 +1,169 @@
+\chapter{Cơ sở lý thuyết và các công trình liên quan}
+\label{chap:related_work}
+
+\section{Mô hình ngôn ngữ lớn (Large Language Models)}
+
+\subsection{Kiến trúc Transformer và cơ chế Attention}
+
+Mô hình ngôn ngữ lớn (LLM) hiện đại được xây dựng dựa trên kiến trúc Transformer do Vaswani và cộng sự đề xuất năm 2017 \cite{vaswani2017attention}. Cốt lõi của kiến trúc này là cơ chế Self-Attention, cho phép mô hình xác định mức độ liên quan giữa các token trong chuỗi đầu vào.
+
+Cho một chuỗi đầu vào $X \in \mathbb{R}^{n \times d}$, cơ chế Scaled Dot-Product Attention được tính như sau:
+
+\begin{equation}
+    \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right) V
+\end{equation}
+
+trong đó $Q = XW_Q$, $K = XW_K$, $V = XW_V$ lần lượt là các ma trận Query, Key, Value; $d_k$ là chiều của vector Key.
+
+Các LLM hiện đại sử dụng kiến trúc Decoder-only (GPT, Gemma, Qwen) với hàng tỷ tham số, được tiền huấn luyện (pre-training) trên lượng dữ liệu văn bản khổng lồ theo mục tiêu autoregressive language modeling.
+
+\subsection{Các mô hình sử dụng trong đề tài}
+
+Đề tài sử dụng ba mô hình cơ sở (base model) để tinh chỉnh:
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{Tổng quan các mô hình ngôn ngữ lớn sử dụng}
+\label{tab:models}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Mô hình} & \textbf{Tham số} & \textbf{Nhiệm vụ} & \textbf{Đặc điểm} \\
+\hline
+Gemma-4-E4B-IT & 7.96B & DebugEval & Google DeepMind, hỗ trợ đa ngôn ngữ \\
+\hline
+Qwen2.5-Coder-3B-Instruct & 3.21B & DebugEval & Alibaba, tối ưu cho code \\
+\hline
+Qwen2.5-3B-Instruct & 3.21B & Socratic Tutoring & Alibaba, mục đích tổng quát \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Tinh chỉnh tham số hiệu quả (Parameter-Efficient Fine-Tuning)}
+
+\subsection{Vấn đề của Full Fine-Tuning}
+
+Full fine-tuning yêu cầu cập nhật toàn bộ tham số mô hình, đòi hỏi tài nguyên GPU lớn và dễ gặp vấn đề catastrophic forgetting. Với mô hình 7.96B tham số như Gemma-4, full fine-tuning cần hàng trăm GB VRAM, vượt quá khả năng của phần cứng phổ thông.
+
+\subsection{LoRA --- Low-Rank Adaptation}
+
+LoRA (Hu et al., 2021) \cite{hu2021lora} giải quyết vấn đề trên bằng cách đóng băng toàn bộ trọng số gốc $W_0$ và thêm các ma trận phân rã hạng thấp (low-rank decomposition) vào các lớp attention:
+
+\begin{equation}
+    W = W_0 + \Delta W = W_0 + BA
+\end{equation}
+
+trong đó $B \in \mathbb{R}^{d \times r}$, $A \in \mathbb{R}^{r \times d}$, với $r \ll d$ là rank của LoRA. Chỉ $A$ và $B$ được cập nhật trong quá trình huấn luyện, giảm số lượng tham số trainable xuống dưới 4\% tổng tham số.
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{Cấu hình LoRA trong đề tài}
+\label{tab:lora_config}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Cấu hình} & \textbf{Gemma-4} & \textbf{Qwen Coder} & \textbf{Qwen Socratic} \\
+\hline
+LoRA Rank ($r$) & 64 & 64 & 64 \\
+\hline
+LoRA Alpha ($\alpha$) & 128 & 128 & 128 \\
+\hline
+Target Layers & $q\_proj$, $v\_proj$ & All linear & All linear \\
+\hline
+Trainable \% & 0.23\% & 3.74\% & 3.74\% \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Supervised Fine-Tuning (SFT)}
+
+Sau khi thiết lập adapter LoRA, mô hình được tinh chỉnh có giám sát (SFT) trên dữ liệu đã được định dạng theo chuẩn ShareGPT hoặc Alpaca. Quá trình huấn luyện sử dụng framework LLaMA-Factory \cite{llamafactory} và mô hình phục vụ inference bằng vLLM \cite{vllm}.
+
+\section{Phương pháp Socratic trong giáo dục lập trình}
+
+\subsection{Phương pháp Socratic (Socratic Method)}
+
+Phương pháp Socratic, có nguồn gốc từ triết gia Socrates, là phương pháp dạy học thông qua đặt câu hỏi. Thay vì cung cấp kiến thức trực tiếp, người dạy đặt ra chuỗi câu hỏi dẫn dắt để người học tự khám phá câu trả lời. Trong bối cảnh dạy lập trình, phương pháp này giúp sinh viên:
+
+\begin{itemize}
+    \item Phát triển kỹ năng tư duy phản biện (critical thinking).
+    \item Xây dựng khả năng gỡ lỗi (debugging) một cách có hệ thống.
+    \item Tránh sự phụ thuộc vào đáp án có sẵn.
+\end{itemize}
+
+\subsection{Giàn giáo nhận thức (Scaffolding)}
+
+Scaffolding là chiến lược sư phạm cung cấp các bước hỗ trợ theo từng bậc, và rút dần khi sinh viên đã hiểu vấn đề. Trong đề tài, hệ thống triển khai 4 mức scaffolding:
+
+\begin{enumerate}
+    \item \textbf{Level 1 --- Khơi gợi (Eliciting):} Đặt câu hỏi mở để sinh viên tự suy nghĩ.
+    \item \textbf{Level 2 --- Gợi ý nhẹ (Hinting):} Cung cấp từ khóa hoặc hướng dẫn ngắn gọn.
+    \item \textbf{Level 3 --- Giải thích (Explaining):} Phân tích chi tiết nguyên nhân lỗi.
+    \item \textbf{Level 4 --- Minh họa (Demonstrating):} Cung cấp ví dụ tương tự (không phải đáp án trực tiếp).
+\end{enumerate}
+
+\subsection{Phản hồi định dạng (Formative Feedback)}
+
+Formative Feedback giúp sinh viên trả lời 3 câu hỏi cốt lõi: \textit{Mình đang đi đâu?} (mục tiêu), \textit{Mình đang ở đâu?} (hiện trạng), \textit{Bước tiếp theo là gì?} (hành động). AI tutor trong đề tài áp dụng nguyên tắc này để tạo phản hồi có cấu trúc sau mỗi lần nộp bài.
+
+\section{LangGraph và kiến trúc workflow AI}
+
+LangGraph là framework xây dựng ứng dụng AI dạng đồ thị trạng thái (stateful graph), cho phép kiểm soát luồng xử lý AI một cách tường minh. So với kiến trúc multi-agent truyền thống, LangGraph mang lại lợi thế:
+
+\begin{itemize}
+    \item Luồng xử lý xác định (deterministic routing), dễ debug và audit.
+    \item Chi phí LLM thấp hơn do tránh agent gọi qua lại.
+    \item Tách biệt rõ ràng giữa logic cứng và logic AI.
+\end{itemize}
+
+\section{Hệ thống chấm bài tự động và Judge0}
+
+Judge0 là hệ thống Online Judge mã nguồn mở, cho phép biên dịch và thực thi code trong Docker container cô lập. Hệ thống hỗ trợ hơn 60 ngôn ngữ lập trình, giới hạn tài nguyên (CPU, RAM, thời gian chạy), và cô lập mạng hoàn toàn.
+
+\section{Prompt Engineering cho AI giáo dục}
+
+Prompt Engineering là kỹ thuật thiết kế câu lệnh đầu vào (prompt) để điều khiển hành vi của LLM. Trong bối cảnh AI giáo dục, prompt engineering đặc biệt quan trọng để:
+
+\begin{itemize}
+    \item Ngăn LLM tiết lộ đáp án trực tiếp (Anti-Solution Guard).
+    \item Duy trì phong cách hội thoại Socratic xuyên suốt cuộc trò chuyện.
+    \item Sinh câu hỏi tương tác (Interactive Question) yêu cầu sinh viên nhập đáp án dự đoán.
+\end{itemize}
+
+\section{Các công trình liên quan}
+
+\subsection{Socratic Debugging}
+
+Nghiên cứu của Malik et al. (2023) \cite{socratic_debug} xây dựng bộ dữ liệu Socratic Debugging gồm các cuộc hội thoại giữa gia sư và sinh viên trong quá trình gỡ lỗi code. Đề tài sử dụng bộ dữ liệu này (552 mẫu train, 77 mẫu test) để tinh chỉnh mô hình Socratic Tutor.
+
+\subsection{COAST và DebugEval Benchmark}
+
+COAST Benchmark \cite{coast} cung cấp framework đánh giá khả năng gỡ lỗi code của LLM qua 4 nhiệm vụ: Bug Localization, Bug Identification, Code Repair, và Code Review. Đề tài sử dụng benchmark này với tổng cộng 24.892 mẫu SFT để tinh chỉnh mô hình.
+
+\subsection{Tổng hợp khoảng trống nghiên cứu}
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{So sánh với các công trình liên quan}
+\label{tab:gap}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Tiêu chí} & \textbf{ChatGPT} & \textbf{Copilot} & \textbf{Socratic Debug} & \textbf{Đề tài} \\
+\hline
+Phương pháp Socratic & Không & Không & Có (chỉ dữ liệu) & \textbf{Có (end-to-end)} \\
+\hline
+Tích hợp IDE & Không & Có & Không & \textbf{Có (VS Code)} \\
+\hline
+Chống tiết lộ đáp án & Không & Không & N/A & \textbf{Có} \\
+\hline
+Chấm bài tự động & Không & Không & Không & \textbf{Có (Judge0)} \\
+\hline
+LLM fine-tuning & N/A & Có & Không & \textbf{Có (LoRA)} \\
+\hline
+Quản lý lớp học & Không & Không & Không & \textbf{Có} \\
+\hline
+\end{tabular}%
+}
+\end{table}

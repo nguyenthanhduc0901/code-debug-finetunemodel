@@ -1,0 +1,135 @@
+\chapter{Phân tích bài toán và thiết kế giải pháp tổng thể}
+\label{chap:design}
+
+\section{Mô tả bài toán}
+
+Hệ thống Socrates Code Tutor giải quyết bài toán xây dựng một hệ sinh thái giáo dục lập trình tích hợp AI, hoạt động ở hai chế độ:
+
+\begin{itemize}
+    \item \textbf{Free Mode:} Người dùng cài đặt VS Code Extension và sử dụng ngay AI chatbot để hỗ trợ gỡ lỗi, không cần đăng nhập. Phiên được khởi tạo qua Device ID ẩn danh.
+    \item \textbf{Classroom Mode:} Sinh viên đăng nhập, nhận bài tập từ giảng viên, code và nộp bài trực tiếp trong VS Code. Khi sai test case, AI tự động phân tích lỗi và dẫn dắt sửa lỗi theo phương pháp Socratic.
+\end{itemize}
+
+\section{Đầu vào, đầu ra và các ràng buộc}
+
+\subsection{Đầu vào}
+
+\begin{itemize}
+    \item Mã nguồn (code snippet) được người dùng bôi đen hoặc gửi toàn bộ file.
+    \item Lỗi Terminal (compiler/runtime error) khi có.
+    \item Câu hỏi tự do bằng ngôn ngữ tự nhiên.
+    \item Đề bài và test case (trong Classroom Mode).
+    \item Kết quả chạy code từ Judge Server (PASS/FAIL + chi tiết).
+\end{itemize}
+
+\subsection{Đầu ra}
+
+\begin{itemize}
+    \item Câu hỏi dẫn dắt Socratic (không phải đáp án code).
+    \item Câu hỏi tương tác yêu cầu sinh viên dự đoán giá trị biến.
+    \item Tóm tắt lỗi và kinh nghiệm sau khi hoàn thành bài tập.
+    \item Dashboard phân tích lỗi phổ biến cho giảng viên.
+\end{itemize}
+
+\subsection{Ràng buộc}
+
+\begin{itemize}
+    \item \textbf{NFR.1:} Extension sẵn sàng chat Free Mode trong dưới 10 giây sau cài đặt.
+    \item \textbf{NFR.2:} Thời gian phản hồi AI thông thường dưới 3 giây.
+    \item \textbf{NFR.3:} Thời gian Submit đến nhận phản hồi đầu tiên dưới 7 giây.
+    \item \textbf{NFR.4:} Judge Sandbox cô lập hoàn toàn mạng, không có quyền I/O ra ngoài.
+    \item \textbf{NFR.5:} Tỷ lệ chống Prompt Injection thành công $>$ 98\%.
+\end{itemize}
+
+\section{Thiết kế kiến trúc tổng thể}
+
+% TODO: Chèn hình kiến trúc tổng thể tại đây
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=\textwidth]{figures/system_architecture.png}
+%     \caption{Kiến trúc tổng thể hệ thống Socrates Code Tutor}
+%     \label{fig:architecture}
+% \end{figure}
+
+Kiến trúc hệ thống được chia thành các tầng sau:
+
+\subsection{Tầng Client}
+
+\begin{itemize}
+    \item \textbf{VS Code Extension (TypeScript):} Bao gồm Context Capture (trích xuất code bôi đen, ngôn ngữ, lỗi Terminal), Chat Webview (giao diện chat Socratic với Input Box tương tác), Assignment TreeView (Sidebar hiển thị bài tập), Login View (xác thực JWT), và Behavior Tracker (theo dõi hành vi học tập).
+    \item \textbf{Teacher Web Portal (React/Vite):} Giao diện quản lý lớp, bài tập, test case; Dashboard phân tích lỗi toàn lớp.
+    \item \textbf{Student Web Portal (React/Vite):} Dashboard cá nhân, lịch sử học tập, chatbot điều hướng học tập.
+\end{itemize}
+
+\subsection{Tầng Backend}
+
+\begin{itemize}
+    \item \textbf{FastAPI Backend (Python):} API Gateway xử lý xác thực (JWT), phân quyền RBAC, business logic, điều phối Judge Server và AI Runtime.
+    \item \textbf{LangGraph AI Runtime:} Orchestrator điều phối các workflow AI thông qua graph router dựa trên intent classification.
+    \item \textbf{Judge0 Sandbox:} Docker container chạy code sinh viên, so sánh output với test case mong đợi.
+\end{itemize}
+
+\subsection{Tầng Dữ liệu}
+
+\begin{itemize}
+    \item \textbf{PostgreSQL:} Lưu trữ thông tin tài khoản, lớp học, bài tập, test case, lịch sử chat, bug summary, và learning events.
+    \item \textbf{JSONB metadata:} Cho phép lưu trữ linh hoạt các AI metadata (prompt, response, policy result, trace\_id).
+\end{itemize}
+
+\section{Thiết kế cơ sở dữ liệu}
+
+% TODO: Chèn ERD diagram tại đây
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=\textwidth]{figures/erd.png}
+%     \caption{Sơ đồ thực thể --- quan hệ (ERD) của hệ thống}
+%     \label{fig:erd}
+% \end{figure}
+
+Các bảng chính trong cơ sở dữ liệu:
+
+\begin{itemize}
+    \item \textbf{users:} Thông tin tài khoản (sinh viên, giảng viên), vai trò (role), trạng thái.
+    \item \textbf{classes:} Thông tin lớp học, giảng viên phụ trách, mã tham gia.
+    \item \textbf{assignments:} Bài tập với đề bài (Markdown), giới hạn ngôn ngữ, deadline.
+    \item \textbf{test\_cases:} Test case cho mỗi bài tập (input, expected\_output, is\_hidden).
+    \item \textbf{submissions:} Lịch sử nộp bài (code, language, judge\_result, score).
+    \item \textbf{chat\_sessions / chat\_messages:} Lịch sử hội thoại AI, gắn với submission nếu có.
+    \item \textbf{learning\_summaries:} Tóm tắt kinh nghiệm do AI sinh ra sau khi sinh viên PASS bài tập.
+\end{itemize}
+
+\section{Thiết kế các workflow LangGraph}
+
+Thay vì kiến trúc multi-agent phức tạp, hệ thống sử dụng mô hình \textbf{Single Orchestrated Graph + Specialized Routes}. Mỗi request được normalize, kiểm tra auth/policy, phân loại intent, rồi điều hướng đến workflow tương ứng.
+
+\subsection{StudentMentorGraph}
+
+Workflow chính cho sinh viên trên VS Code. Nhận code, lỗi, kết quả Judge; phân tích root cause; tính Scaffolding Level dựa trên hồ sơ người học; sinh phản hồi Socratic.
+
+\subsection{TeacherInsightGraph}
+
+Workflow cho giảng viên trên Web. Trả lời các câu hỏi phân tích về lớp học, sinh viên, bài tập dựa trên dữ liệu analytics thực tế từ database.
+
+\subsection{ExerciseDraftGraph}
+
+Hỗ trợ giảng viên tạo bài tập nháp, test case, rubric và gợi ý (hint). AI tạo draft, giảng viên review và approve.
+
+\subsection{ReverseTeachingGraph}
+
+Workflow đảo ngược: AI đặt câu hỏi, sinh viên giải thích code. Giúp kiểm tra mức độ hiểu sâu của sinh viên, không chỉ khả năng viết code đúng.
+
+\section{Luồng xử lý dữ liệu tổng quát}
+
+% TODO: Chèn sequence diagram tại đây
+
+Luồng xử lý chính cho Classroom Mode khi sinh viên nộp bài:
+
+\begin{enumerate}
+    \item Sinh viên viết code và nhấn ``Submit'' trên VS Code Extension.
+    \item Extension gom code + assignment\_id $\rightarrow$ gửi API Backend.
+    \item Backend gửi code đến Judge0 Sandbox để biên dịch và chạy test case.
+    \item Judge0 trả về kết quả: PASS hoặc FAIL (kèm chi tiết input/expected/got).
+    \item Nếu FAIL: Backend trigger \texttt{StudentMentorGraph}, AI phân tích lỗi và sinh phản hồi Socratic.
+    \item Chat tự động mở trên Extension, hiển thị câu hỏi dẫn dắt.
+    \item Nếu PASS: Backend trigger \texttt{Evaluator/Memory Agent}, tóm tắt kinh nghiệm gỡ lỗi $\rightarrow$ lưu vào \texttt{learning\_summaries}.
+\end{enumerate}
